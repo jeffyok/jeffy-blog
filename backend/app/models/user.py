@@ -1,7 +1,7 @@
 """用户模型"""
 
 from sqlalchemy import String
-from sqlalchemy.orm import Mapped, mapped_column
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.db.session import Base
 from app.models.base import TimestampMixin
@@ -20,3 +20,6 @@ class User(Base, TimestampMixin):
     avatar: Mapped[str | None] = mapped_column(String(500), comment="头像URL")
     role: Mapped[str] = mapped_column(String(20), default="user", comment="角色：user-普通用户，admin-管理员")
     is_active: Mapped[bool] = mapped_column(default=True, comment="是否激活")
+
+    # 关联关系
+    articles: Mapped[list["Article"]] = relationship(back_populates="author")
