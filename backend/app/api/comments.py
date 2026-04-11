@@ -1,0 +1,65 @@
+from fastapi import APIRouter, Depends, HTTPException, Query
+from sqlalchemy import select
+from sqlalchemy.ext.asyncio import AsyncSession
+
+from app.api.deps import get_current_user, require_admin
+from app.db.session import get_db
+from app.models.comment import Comment
+from app.models.user import User
+from app.schemas.comment import CommentCreate, CommentOut
+from app.services.comment_service import CommentService
+
+router = APIRouter(prefix="/api", tags=["comments"])
+
+
+@router.get("/articles/{article_id}/comments", response_model=list[CommentOut])
+async def get_comments(article_id: int, db: AsyncSession = Depends(get_db)):
+    return await CommentService.get_comments_by_article(db, article_id)
+
+
+@router.post("/articles/{article_id}/comments", response_model=CommentOut, status_code=201)
+async def create_comment(
+    article_id: int,
+    data: CommentCreate,
+    db: AsyncSession = Depends(get_db),
+    current_user: User | None = Depends(get_current_user),
+):
+    # Guest comments must have nickname and email
+    if current_user is None and (not data.nickname or not data.email):
+        raise HTTPException(status_code=400, detail="Guest comments require nickname and email")
+    return await CommentService.create_comment(db, article_id, data, user_id=current_user.id if current_user else None)
+
+
+# Admin endpoints
+@router.get("/admin/comments")
+async def list_comments(
+    page: int = Query(1, ge=1),
+    page_size: int = Query(20, ge=1, le=100),
+    status: str | None = None,
+    db: AsyncSession = Depends(get_db),
+    _=Depends(require_admin),
+):
+    comments, total = await CommentService.get_all_comments(db, page=page, page_size=page_size, status=status)
+    return {"items": comments, "total": total, "page": page, "page_size": page_size}
+
+
+@router.put("/admin/comments/{comment_id}")
+async def update_comment_status(
+    comment_id: int,
+    status: str,
+    db: AsyncSession = Depends(get_db),
+    _=Depends(require_admin),
+):
+    comment = await CommentService.update_comment_status(db, comment_id, status)
+    if not comment:
+        raise HTTPException(status_code=404, detail="Comment not found")
+    return comment
+
+
+@router.delete("/admin/comments/{comment_id}", status_code=204)
+async def delete_comment(comment_id: int, db: AsyncSession = Depends(get_db), _=Depends(require_admin)):
+    result = await db.execute(select(Comment).where(Comment.id == comment_id))
+    comment = result.scalar_one_or_none()
+    if not comment:
+        raise HTTPException(status_code=404, detail="Comment not found")
+    await CommentService.delete_comment(db, comment)

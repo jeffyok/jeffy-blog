@@ -1,0 +1,220 @@
+/**
+ * 全局样式入口
+ * 定义通用样式：重置、按钮、表单、卡片、分页、标签、状态标签等
+ */
+@use './variables' as *;
+
+// 全局盒模型重置
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  color: $text;
+  background: $bg;
+  line-height: 1.6;
+}
+
+a {
+  color: $primary;
+  text-decoration: none;
+
+  &:hover {
+    color: $primary-dark;
+  }
+}
+
+// 内容容器（居中 + 限宽）
+.container {
+  max-width: $max-width;
+  margin: 0 auto;
+  padding: 0 20px;
+}
+
+// 通用按钮样式
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 8px 16px;
+  border: 1px solid $border;
+  border-radius: 4px;
+  background: $bg-white;
+  color: $text;
+  cursor: pointer;
+  font-size: 14px;
+  transition: all 0.2s;
+
+  &:hover {
+    border-color: $primary;
+    color: $primary;
+  }
+
+  &.btn-primary {
+    background: $primary;
+    border-color: $primary;
+    color: #fff;
+
+    &:hover {
+      background: $primary-light;
+      border-color: $primary-light;
+    }
+  }
+
+  &.btn-danger {
+    border-color: $danger;
+    color: $danger;
+
+    &:hover {
+      background: $danger;
+      color: #fff;
+    }
+  }
+
+  &.btn-sm {
+    padding: 4px 12px;
+    font-size: 12px;
+  }
+}
+
+// 通用表单组
+.form-group {
+  margin-bottom: 16px;
+
+  label {
+    display: block;
+    margin-bottom: 6px;
+    font-size: 14px;
+    color: $text;
+  }
+
+  input, textarea, select {
+    width: 100%;
+    padding: 8px 12px;
+    border: 1px solid $border;
+    border-radius: 4px;
+    font-size: 14px;
+    outline: none;
+    transition: border-color 0.2s;
+
+    &:focus {
+      border-color: $primary;
+    }
+  }
+
+  textarea {
+    min-height: 100px;
+    resize: vertical;
+  }
+}
+
+// 通用卡片容器
+.card {
+  background: $bg-white;
+  border-radius: 8px;
+  padding: 20px;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.05);
+}
+
+// 页面标题
+.page-title {
+  font-size: 24px;
+  font-weight: 600;
+  margin-bottom: 24px;
+}
+
+// 分页组件样式
+.pagination {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 24px;
+
+  .page-btn {
+    min-width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid $border;
+    border-radius: 4px;
+    background: $bg-white;
+    cursor: pointer;
+    font-size: 14px;
+    transition: all 0.2s;
+
+    &:hover, &.active {
+      background: $primary;
+      border-color: $primary;
+      color: #fff;
+    }
+
+    &.disabled {
+      cursor: not-allowed;
+      opacity: 0.5;             // 禁用态半透明
+    }
+  }
+}
+
+// 加载中占位
+.loading {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 40px;
+  color: $text-secondary;
+}
+
+// 空数据占位
+.empty {
+  text-align: center;
+  padding: 40px;
+  color: $text-secondary;
+}
+
+// 通用标签样式
+.tag {
+  display: inline-block;
+  padding: 2px 8px;
+  background: #ecf5ff;
+  color: $primary;
+  border-radius: 4px;
+  font-size: 12px;
+  margin-right: 4px;
+}
+
+// 状态标签（文章状态、评论状态等）
+.status-tag {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-size: 12px;
+
+  &.published {
+    background: #f0f9eb;
+    color: $success;
+  }
+
+  &.draft {
+    background: #fdf6ec;
+    color: $warning;
+  }
+
+  &.pending {
+    background: #fef0f0;
+    color: $danger;
+  }
+
+  &.approved {
+    background: #f0f9eb;
+    color: $success;
+  }
+
+  &.rejected {
+    background: #f4f4f5;
+    color: $text-secondary;
+  }
+}

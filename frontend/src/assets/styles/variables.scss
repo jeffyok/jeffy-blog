@@ -1,0 +1,32 @@
+/**
+ * 全局 SCSS 变量
+ * 定义主题色、文字色、背景色、边框色、布局尺寸等
+ */
+
+// 主题色
+$primary: #409eff;
+$primary-light: #66b1ff;
+$primary-dark: #3a8ee6;
+
+// 文字色
+$text: #303133;
+$text-secondary: #909399;
+$text-placeholder: #c0c4cc;
+
+// 背景色
+$bg: #f5f7fa;
+$bg-white: #ffffff;
+
+// 边框色
+$border: #dcdfe6;
+$border-light: #e4e7ed;
+
+// 功能色
+$danger: #f56c6c;
+$success: #67c23a;
+$warning: #e6a23c;
+
+// 布局尺寸
+$max-width: 1200px;              // 内容最大宽度
+$sidebar-width: 280px;           // 侧边栏宽度
+$header-height: 60px;            // 顶部栏高度
