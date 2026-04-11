@@ -10,10 +10,11 @@ class Category(Base):
     """分类模型 - 博客文章分类"""
 
     __tablename__ = "categories"
+    __table_args__ = {"comment": "文章分类表"}
 
-    id: Mapped[int] = mapped_column(primary_key=True)  # 主键
-    name: Mapped[str] = mapped_column(String(50), unique=True)  # 分类名称，唯一
-    slug: Mapped[str] = mapped_column(String(50), unique=True, index=True)  # URL友好标识，唯一且建索引
-    description: Mapped[str | None] = mapped_column(String(200))  # 分类描述
+    id: Mapped[int] = mapped_column(primary_key=True, comment="主键ID")
+    name: Mapped[str] = mapped_column(String(50), unique=True, comment="分类名称")
+    slug: Mapped[str] = mapped_column(String(50), unique=True, index=True, comment="URL友好标识")
+    description: Mapped[str | None] = mapped_column(String(200), comment="分类描述")
 
-    articles: Mapped[list["Article"]] = relationship(back_populates="category")  # 该分类下的文章
+    articles: Mapped[list["Article"]] = relationship(back_populates="category")
