@@ -45,8 +45,11 @@ class AuthService:
             raise HTTPException(status_code=401, detail="Invalid username or password")
         if not user.is_active:
             raise HTTPException(status_code=401, detail="User is disabled")
-        # 生成JWT令牌，以用户ID作为主题
-        token = create_access_token(data={"sub": user.id})
+        # 生成JWT令牌，以用户ID作为主题（必须转换为字符串）
+        import sys
+        print(f"[DEBUG] user.id = {user.id}, type = {type(user.id)}", file=sys.stderr, flush=True)
+        print(f"[DEBUG] str(user.id) = {str(user.id)}, type = {type(str(user.id))}", file=sys.stderr, flush=True)
+        token = create_access_token(data={"sub": str(user.id)})
         return token
 
     @staticmethod

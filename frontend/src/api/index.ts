@@ -14,9 +14,10 @@ const api = axios.create({
 
 // 请求拦截器：自动携带 token
 api.interceptors.request.use((config) => {
-  const authStore = useAuthStore()
-  if (authStore.token) {
-    config.headers.Authorization = `Bearer ${authStore.token}`
+  // 直接从 localStorage 读取 token，避免 store 时序问题
+  const token = localStorage.getItem('token')
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`
   }
   return config
 })
