@@ -4,7 +4,7 @@ import { ref, onMounted, computed, onBeforeUnmount } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { MdEditor } from 'md-editor-v3'
 import 'md-editor-v3/lib/style.css'
-import { getArticle, createArticle, updateArticle } from '@/api/articles'
+import { getArticleById, createArticle, updateArticle } from '@/api/articles'
 import { getCategories } from '@/api/categories'
 import { getTags } from '@/api/tags'
 import type { Article, Category, Tag } from '@/types/article'
@@ -67,7 +67,7 @@ async function loadTags() {
 
 /** 编辑模式下加载已有文章数据 */
 async function loadArticle() {
-  const { data } = await getArticle(String(route.params.id))
+  const { data } = await getArticleById(Number(route.params.id))
   form.value = {
     title: data.title,
     slug: data.slug,
@@ -107,7 +107,7 @@ async function save(status?: string) {
     }
     router.push('/admin/articles') // 保存成功跳转文章列表
   } catch (e) {
-    saveError.value = 'Failed to save article'
+    saveError.value = '保存文章失败'
   } finally {
     saving.value = false
   }
@@ -128,11 +128,11 @@ function toggleTag(tagId: number) {
   <div>
     <!-- 页头：标题 + 保存/发布按钮 -->
     <div class="page-header">
-      <h1 class="page-title">{{ isEdit ? 'Edit Article' : 'New Article' }}</h1>
+      <h1 class="page-title">{{ isEdit ? '编辑文章' : '新建文章' }}</h1>
       <div class="header-actions">
-        <button class="btn" @click="save('draft')" :disabled="saving">Save Draft</button>
+        <button class="btn" @click="save('draft')" :disabled="saving">保存草稿</button>
         <button class="btn btn-primary" @click="save('published')" :disabled="saving">
-          {{ saving ? 'Saving...' : 'Publish' }}
+          {{ saving ? '保存中...' : '发布' }}
         </button>
       </div>
     </div>
@@ -140,7 +140,7 @@ function toggleTag(tagId: number) {
     <!-- 保存失败错误提示 -->
     <div v-if="saveError" class="save-error">{{ saveError }}</div>
 
-    <div v-if="loading" class="loading"><span>Loading...</span></div>
+    <div v-if="loading" class="loading"><span>加载中...</span></div>
     <template v-else>
       <div class="editor-wrapper">
         <!-- 左侧编辑区 -->
@@ -148,41 +148,41 @@ function toggleTag(tagId: number) {
           <input
             v-model="form.title"
             class="title-input"
-            placeholder="Article title..."
+            placeholder="文章标题..."
             @input="generateSlug"
           />
           <div class="slug-row">
-            <label>Slug:</label>
+            <label>别名：</label>
             <input v-model="form.slug" placeholder="article-slug" />
           </div>
           <!-- Markdown 编辑器 -->
-          <MdEditor v-model="form.content" language="en-US" style="height: 500px;" />
+          <MdEditor v-model="form.content" style="height: 500px;" />
         </div>
 
         <!-- 右侧元数据面板 -->
         <aside class="editor-sidebar card">
           <div class="sidebar-section">
-            <h3>Status</h3>
+            <h3>状态</h3>
             <select v-model="form.status">
-              <option value="draft">Draft</option>
-              <option value="published">Published</option>
+              <option value="draft">草稿</option>
+              <option value="published">已发布</option>
             </select>
           </div>
           <div class="sidebar-section">
             <label>
               <input type="checkbox" v-model="form.is_top" />
-              Pin to top
+              置顶
             </label>
           </div>
           <div class="sidebar-section">
-            <h3>Category</h3>
+            <h3>分类</h3>
             <select v-model="form.category_id">
-              <option :value="undefined">No category</option>
+              <option :value="undefined">无分类</option>
               <option v-for="cat in categories" :key="cat.id" :value="cat.id">{{ cat.name }}</option>
             </select>
           </div>
           <div class="sidebar-section">
-            <h3>Tags</h3>
+            <h3>标签</h3>
             <div class="tag-selector">
               <label v-for="tag in tags" :key="tag.id" class="tag-option">
                 <input type="checkbox" :value="tag.id" :checked="form.tag_ids.includes(tag.id)" @change="toggleTag(tag.id)" />
@@ -191,12 +191,12 @@ function toggleTag(tagId: number) {
             </div>
           </div>
           <div class="sidebar-section">
-            <h3>Cover Image URL</h3>
+            <h3>封面图片URL</h3>
             <input v-model="form.cover_image" placeholder="https://..." />
           </div>
           <div class="sidebar-section">
-            <h3>Summary</h3>
-            <textarea v-model="form.summary" placeholder="Optional summary..." rows="3" />
+            <h3>摘要</h3>
+            <textarea v-model="form.summary" placeholder="可选摘要..." rows="3" />
           </div>
         </aside>
       </div>
@@ -239,6 +239,7 @@ function toggleTag(tagId: number) {
 .editor-main {
   flex: 1;
   min-width: 0;
+  overflow: hidden;
 }
 
 .title-input {
@@ -296,7 +297,7 @@ function toggleTag(tagId: number) {
     color: $text;
   }
 
-  select, input, textarea {
+  select, input[type="text"], input[type="email"], input[type="password"], textarea {
     width: 100%;
     padding: 8px 12px;
     border: 1px solid $border;
@@ -312,6 +313,11 @@ function toggleTag(tagId: number) {
   textarea {
     min-height: 80px;
     resize: vertical;
+  }
+
+  input[type="checkbox"] {
+    width: auto;
+    margin: 0;
   }
 
   label {

@@ -17,7 +17,7 @@ const loading = ref(false)
 async function handleRegister() {
   error.value = ''
   if (password.value !== confirmPassword.value) {
-    error.value = 'Passwords do not match'
+    error.value = '两次输入的密码不一致'
     return
   }
   loading.value = true
@@ -28,8 +28,8 @@ async function handleRegister() {
     router.push('/')
   } catch (e: unknown) {
     error.value = typeof e === 'object' && e !== null && 'response' in e
-      ? ((e as { response: { data: { detail?: string } } }).response?.data?.detail || 'Registration failed')
-      : 'Registration failed'
+      ? ((e as { response: { data: { detail?: string } } }).response?.data?.detail || '注册失败')
+      : '注册失败'
   } finally {
     loading.value = false
   }
@@ -39,32 +39,32 @@ async function handleRegister() {
 <template>
   <div class="auth-page">
     <div class="card auth-form">
-      <h1 class="auth-title">Register</h1>
+      <h1 class="auth-title">注册</h1>
       <!-- 错误提示 -->
       <div v-if="error" class="auth-error">{{ error }}</div>
       <form @submit.prevent="handleRegister">
         <div class="form-group">
-          <label>Username</label>
+          <label>用户名</label>
           <input v-model="username" type="text" required />
         </div>
         <div class="form-group">
-          <label>Email</label>
+          <label>邮箱</label>
           <input v-model="email" type="email" required />
         </div>
         <div class="form-group">
-          <label>Password</label>
+          <label>密码</label>
           <input v-model="password" type="password" required minlength="6" />
         </div>
         <div class="form-group">
-          <label>Confirm Password</label>
+          <label>确认密码</label>
           <input v-model="confirmPassword" type="password" required />
         </div>
         <button type="submit" class="btn btn-primary" style="width: 100%;" :disabled="loading">
-          {{ loading ? 'Registering...' : 'Register' }}
+          {{ loading ? '注册中...' : '注册' }}
         </button>
       </form>
       <p class="auth-link">
-        Already have an account? <router-link to="/login">Login</router-link>
+        已有账号？ <router-link to="/login">登录</router-link>
       </p>
     </div>
   </div>

@@ -47,6 +47,15 @@ async def get_article(slug: str, db: AsyncSession = Depends(get_db)):
     return article
 
 
+@router.get("/id/{article_id}", response_model=ArticleOut)
+async def get_article_by_id(article_id: int, db: AsyncSession = Depends(get_db)):
+    """根据 ID 获取文章详情（用于编辑）"""
+    article = await ArticleService.get_article_by_id(db, article_id)
+    if article is None:
+        raise HTTPException(status_code=404, detail="Article not found")
+    return article
+
+
 @router.post("/", response_model=ArticleOut, status_code=201)
 async def create_article(
     data: ArticleCreate,

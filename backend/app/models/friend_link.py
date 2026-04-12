@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """友情链接模型"""
 
 from sqlalchemy import String

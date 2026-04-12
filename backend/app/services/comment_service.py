@@ -44,13 +44,12 @@ class CommentService:
     @staticmethod
     async def get_comments_by_article(db: AsyncSession, article_id: int) -> list[Comment]:
         """
-        获取文章的评论列表（树形结构）
-        仅返回已审核的顶级评论，子回复通过预加载获取
+        获取文章的评论列表（扁平结构，按创建时间排序）
+        返回所有已审核的评论
         """
         result = await db.execute(
             select(Comment)
-            .options(selectinload(Comment.user), selectinload(Comment.replies))  # 预加载评论者和子回复
-            .where(Comment.article_id == article_id, Comment.parent_id.is_(None), Comment.status == "approved")
+            .where(Comment.article_id == article_id, Comment.status == "approved")
             .order_by(Comment.created_at)
         )
         return list(result.scalars().all())
@@ -66,7 +65,7 @@ class CommentService:
         管理员获取所有评论（分页，支持按状态过滤）
         :return: (评论列表, 总数)
         """
-        query = select(Comment).options(selectinload(Comment.user), selectinload(Comment.article))
+        query = select(Comment)
         count_query = select(func.count(Comment.id))
 
         # 按状态筛选（如 pending、approved、rejected）

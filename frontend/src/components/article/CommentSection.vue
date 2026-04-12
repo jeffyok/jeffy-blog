@@ -16,6 +16,7 @@ const authStore = useAuthStore()
 const comments = ref<Comment[]>([])
 const loading = ref(false)
 const submitting = ref(false)
+const submitError = ref('')  // 添加错误提示
 
 // 评论表单字段
 const content = ref('')
@@ -31,6 +32,8 @@ async function loadComments() {
   try {
     const { data } = await getComments(props.articleId)
     comments.value = data
+  } catch (e) {
+    console.error('加载评论失败:', e)
   } finally {
     loading.value = false
   }
@@ -52,6 +55,7 @@ async function submitComment() {
   if (!authStore.isLoggedIn && (!nickname.value || !email.value)) return
 
   submitting.value = true
+  submitError.value = ''
   try {
     await createComment(props.articleId, {
       content: content.value.trim(),
@@ -62,6 +66,9 @@ async function submitComment() {
     content.value = ''
     replyTo.value = null
     await loadComments()         // 重新加载评论列表
+  } catch (e) {
+    console.error('提交评论失败:', e)
+    submitError.value = '提交评论失败，请稍后重试'
   } finally {
     submitting.value = false
   }
@@ -70,52 +77,43 @@ async function submitComment() {
 
 <template>
   <div class="comment-section">
-    <h2 class="section-title">Comments</h2>
+    <h2 class="section-title">评论</h2>
 
     <!-- 评论输入表单 -->
     <div class="comment-form card">
-      <textarea v-model="content" placeholder="Write a comment..." rows="3" />
+      <textarea v-model="content" placeholder="写下你的评论..." rows="3" />
       <!-- 回复提示 -->
       <div v-if="replyTo" class="reply-hint">
-        Replying to comment #{{ replyTo }}
-        <button class="btn btn-sm" @click="cancelReply">Cancel</button>
+        正在回复评论 #{{ replyTo }}
+        <button class="btn btn-sm" @click="cancelReply">取消</button>
       </div>
       <!-- 未登录时显示昵称和邮箱输入框 -->
       <div v-if="!authStore.isLoggedIn" class="guest-fields">
-        <input v-model="nickname" placeholder="Nickname" required />
-        <input v-model="email" type="email" placeholder="Email" required />
+        <input v-model="nickname" placeholder="昵称" required />
+        <input v-model="email" type="email" placeholder="邮箱" required />
       </div>
       <div class="form-actions">
+        <!-- 错误提示 -->
+        <div v-if="submitError" class="submit-error">{{ submitError }}</div>
         <button class="btn btn-primary" @click="submitComment" :disabled="submitting || !content.trim()">
-          {{ submitting ? 'Submitting...' : 'Submit' }}
+          {{ submitting ? '提交中...' : '提交评论' }}
         </button>
       </div>
     </div>
 
     <!-- 加载中 / 空状态 -->
-    <div v-if="loading" class="loading"><span>Loading...</span></div>
-    <div v-else-if="comments.length === 0" class="empty">No comments yet.</div>
+    <div v-if="loading" class="loading"><span>加载中...</span></div>
+    <div v-else-if="comments.length === 0" class="empty">暂无评论。</div>
 
     <!-- 评论列表 -->
     <div v-else class="comment-list">
       <div v-for="comment in comments" :key="comment.id" class="comment-item">
         <div class="comment-header">
-          <span class="comment-author">{{ comment.user?.username || comment.nickname || 'Anonymous' }}</span>
+          <span class="comment-author">{{ comment.user?.username || comment.nickname || '游客' }}</span>
           <span class="comment-date">{{ formatDateTime(comment.created_at) }}</span>
         </div>
         <div class="comment-body">{{ comment.content }}</div>
-        <button class="btn btn-sm reply-btn" @click="setReply(comment.id)">Reply</button>
-        <!-- 嵌套回复 -->
-        <div v-if="comment.replies?.length" class="replies">
-          <div v-for="reply in comment.replies" :key="reply.id" class="comment-item reply">
-            <div class="comment-header">
-              <span class="comment-author">{{ reply.user?.username || reply.nickname || 'Anonymous' }}</span>
-              <span class="comment-date">{{ formatDateTime(reply.created_at) }}</span>
-            </div>
-            <div class="comment-body">{{ reply.content }}</div>
-            <button class="btn btn-sm reply-btn" @click="setReply(reply.id)">Reply</button>
-          </div>
-        </div>
+        <button class="btn btn-sm reply-btn" @click="setReply(comment.id)">回复</button>
       </div>
     </div>
   </div>
@@ -186,6 +184,12 @@ async function submitComment() {
 .form-actions {
   display: flex;
   justify-content: flex-end;
+  gap: 12px;
+}
+
+.submit-error {
+  color: #f56c6c;
+  font-size: 13px;
 }
 
 .comment-list {

@@ -25,7 +25,7 @@ class CommentUserOut(BaseModel):
 
 
 class CommentOut(BaseModel):
-    """评论输出模式 - 支持嵌套回复"""
+    """评论输出模式"""
 
     id: int  # 评论ID
     content: str  # 评论内容
@@ -35,6 +35,5 @@ class CommentOut(BaseModel):
     parent_id: int | None = None  # 父评论ID
     status: str  # 评论状态
     created_at: datetime  # 创建时间
-    replies: list["CommentOut"] = []  # 子回复列表，递归嵌套
 
     model_config = {"from_attributes": True}  # 允许从ORM对象创建

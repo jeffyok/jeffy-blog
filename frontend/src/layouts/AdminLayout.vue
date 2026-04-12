@@ -1,21 +1,30 @@
 <!-- 管理后台布局：顶部栏 + 侧边导航 + 内容区 -->
 <script setup lang="ts">
-import { ref } from 'vue'
-import { useRouter } from 'vue-router'
+import { ref, computed } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
 
+const route = useRoute()
 const router = useRouter()
 const authStore = useAuthStore()
 const sidebarOpen = ref(false)
 
 // 侧边栏菜单项
 const menuItems = [
-  { name: 'Dashboard', path: '/admin', icon: '📊' },
-  { name: 'Articles', path: '/admin/articles', icon: '📝' },
-  { name: 'Categories', path: '/admin/categories', icon: '📂' },
-  { name: 'Tags', path: '/admin/tags', icon: '🏷️' },
-  { name: 'Comments', path: '/admin/comments', icon: '💬' },
+  { name: '仪表盘', path: '/admin', icon: '📊' },
+  { name: '文章管理', path: '/admin/articles', icon: '📝', matchPrefix: true },
+  { name: '分类管理', path: '/admin/categories', icon: '📂' },
+  { name: '标签管理', path: '/admin/tags', icon: '🏷️' },
+  { name: '评论管理', path: '/admin/comments', icon: '💬' },
 ]
+
+/** 判断菜单项是否激活 */
+function isActive(item: { path: string; matchPrefix?: boolean }) {
+  if (item.matchPrefix) {
+    return route.path.startsWith(item.path)
+  }
+  return route.path === item.path
+}
 
 /** 切换侧边栏展开/收起 */
 function toggleSidebar() {
@@ -37,8 +46,8 @@ function logout() {
       <h1 class="admin-title">Jeffy Blog Admin</h1>
       <div class="header-right">
         <span class="username">{{ authStore.user?.username }}</span>
-        <button class="btn btn-sm" @click="logout">Logout</button>
-        <router-link to="/" class="btn btn-sm">View Blog</router-link>
+        <button class="btn btn-sm" @click="logout">退出登录</button>
+        <router-link to="/" class="btn btn-sm">查看博客</router-link>
       </div>
     </header>
 
@@ -51,7 +60,7 @@ function logout() {
             :key="item.path"
             :to="item.path"
             class="nav-item"
-            active-class="active"
+            :class="{ active: isActive(item) }"
             @click="sidebarOpen = false"
           >
             <span class="nav-icon">{{ item.icon }}</span>
@@ -119,9 +128,11 @@ function logout() {
 
   .btn {
     color: #fff;
+    background: rgba(255, 255, 255, 0.1);
     border-color: rgba(255, 255, 255, 0.3);
 
     &:hover {
+      background: rgba(255, 255, 255, 0.2);
       border-color: #fff;
     }
   }

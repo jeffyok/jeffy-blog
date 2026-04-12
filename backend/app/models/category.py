@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """分类模型"""
 
 from sqlalchemy import String

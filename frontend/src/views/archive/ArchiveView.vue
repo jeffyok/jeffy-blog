@@ -19,9 +19,9 @@ onMounted(async () => {
 
 <template>
   <div>
-    <h1 class="page-title">Archives</h1>
-    <div v-if="loading" class="loading"><span>Loading...</span></div>
-    <div v-else-if="archives.length === 0" class="empty">No articles yet.</div>
+    <h1 class="page-title">文章归档</h1>
+    <div v-if="loading" class="loading"><span>加载中...</span></div>
+    <div v-else-if="archives.length === 0" class="empty">暂无文章。</div>
     <template v-else>
       <!-- 按年份分组 -->
       <div v-for="year in archives" :key="year.year" class="archive-year card">

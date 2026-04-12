@@ -14,7 +14,13 @@ router = APIRouter(prefix="/api", tags=["comments"])
 
 @router.get("/articles/{article_id}/comments", response_model=list[CommentOut])
 async def get_comments(article_id: int, db: AsyncSession = Depends(get_db)):
-    return await CommentService.get_comments_by_article(db, article_id)
+    try:
+        return await CommentService.get_comments_by_article(db, article_id)
+    except Exception as e:
+        import traceback
+        print(f"Error getting comments: {e}")
+        print(traceback.format_exc())
+        raise HTTPException(status_code=500, detail=str(e))
 
 
 @router.post("/articles/{article_id}/comments", response_model=CommentOut, status_code=201)
@@ -37,7 +43,7 @@ async def list_comments(
     page_size: int = Query(20, ge=1, le=100),
     status: str | None = None,
     db: AsyncSession = Depends(get_db),
-    _=Depends(require_admin),
+    current_user: User = Depends(require_admin),
 ):
     comments, total = await CommentService.get_all_comments(db, page=page, page_size=page_size, status=status)
     return {"items": comments, "total": total, "page": page, "page_size": page_size}
@@ -48,7 +54,7 @@ async def update_comment_status(
     comment_id: int,
     status: str,
     db: AsyncSession = Depends(get_db),
-    _=Depends(require_admin),
+    current_user: User = Depends(require_admin),
 ):
     comment = await CommentService.update_comment_status(db, comment_id, status)
     if not comment:
@@ -57,7 +63,7 @@ async def update_comment_status(
 
 
 @router.delete("/admin/comments/{comment_id}", status_code=204)
-async def delete_comment(comment_id: int, db: AsyncSession = Depends(get_db), _=Depends(require_admin)):
+async def delete_comment(comment_id: int, db: AsyncSession = Depends(get_db), current_user: User = Depends(require_admin)):
     result = await db.execute(select(Comment).where(Comment.id == comment_id))
     comment = result.scalar_one_or_none()
     if not comment:

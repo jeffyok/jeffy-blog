@@ -31,26 +31,38 @@ function logout() {
       <router-link to="/" class="logo">Jeffy Blog</router-link>
       <!-- 导航链接（移动端可展开） -->
       <nav class="nav-links" :class="{ open: mobileMenuOpen }">
-        <router-link to="/" @click="mobileMenuOpen = false">Home</router-link>
-        <router-link to="/archive" @click="mobileMenuOpen = false">Archive</router-link>
-        <router-link to="/friends" @click="mobileMenuOpen = false">Friends</router-link>
-        <router-link to="/about" @click="mobileMenuOpen = false">About</router-link>
+        <router-link to="/" @click="mobileMenuOpen = false">首页</router-link>
+        <router-link to="/archive" @click="mobileMenuOpen = false">归档</router-link>
+        <router-link to="/friends" @click="mobileMenuOpen = false">友情链接</router-link>
+        <router-link to="/about" @click="mobileMenuOpen = false">关于</router-link>
         <!-- 仅管理员可见的后台入口 -->
         <template v-if="authStore.isAdmin">
-          <router-link to="/admin" @click="mobileMenuOpen = false">Admin</router-link>
+          <router-link to="/admin" @click="mobileMenuOpen = false">管理后台</router-link>
         </template>
-        <!-- 已登录显示退出，未登录显示登录 -->
-        <template v-if="authStore.isLoggedIn">
-          <a href="#" @click.prevent="logout">Logout</a>
-        </template>
-        <template v-else>
-          <router-link to="/login" @click="mobileMenuOpen = false">Login</router-link>
-        </template>
+        <!-- 移动端：已登录显示用户名和退出，未登录显示登录 -->
+        <div class="mobile-user-section">
+          <template v-if="authStore.isLoggedIn">
+            <span class="mobile-username">用户：{{ authStore.user?.username }}</span>
+            <a href="#" @click.prevent="logout(); mobileMenuOpen = false">退出</a>
+          </template>
+          <template v-else>
+            <router-link to="/login" @click="mobileMenuOpen = false">登录</router-link>
+          </template>
+        </div>
       </nav>
-      <!-- 搜索表单 -->
-      <form class="search-form" @submit.prevent="handleSearch">
-        <input v-model="searchKeyword" type="text" placeholder="Search..." class="search-input" />
-      </form>
+      <!-- 右侧区域：搜索框 + 用户信息 -->
+      <div class="header-right">
+        <!-- 搜索表单 -->
+        <form class="search-form" @submit.prevent="handleSearch">
+          <input v-model="searchKeyword" type="text" placeholder="搜索..." class="search-input" />
+        </form>
+        <!-- 用户信息区域 -->
+        <div v-if="authStore.isLoggedIn" class="user-menu">
+          <div class="username">{{ authStore.user?.username }}</div>
+          <a href="#" @click.prevent="logout" class="logout-link">退出</a>
+        </div>
+        <router-link v-else to="/login" class="login-link">登录</router-link>
+      </div>
       <!-- 移动端汉堡菜单按钮 -->
       <button class="mobile-toggle" @click="mobileMenuOpen = !mobileMenuOpen">☰</button>
     </div>
@@ -100,10 +112,20 @@ function logout() {
       color: $primary;
     }
   }
+
+  .mobile-user-section {
+    display: none;
+  }
+}
+
+.header-right {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-left: auto;
 }
 
 .search-form {
-  margin-left: auto;           // 搜索框推到右侧
   display: flex;
 }
 
@@ -119,6 +141,44 @@ function logout() {
     border-color: $primary;
     width: 260px;              // 聚焦时展宽
   }
+}
+
+.user-menu {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+
+  .username {
+    font-size: 14px;
+    font-weight: 500;
+    color: $text;
+  }
+
+  .logout-link {
+    color: $text;
+    font-size: 14px;
+    cursor: pointer;
+
+    &:hover {
+      color: $primary;
+    }
+  }
+}
+
+.login-link {
+  color: $text;
+  font-size: 14px;
+  transition: color 0.2s;
+
+  &:hover {
+    color: $primary;
+  }
+}
+
+.mobile-username {
+  font-size: 14px;
+  color: $text-secondary;
+  padding: 4px 0;
 }
 
 .mobile-toggle {
@@ -146,10 +206,18 @@ function logout() {
     &.open {
       display: flex;           // 展开时显示
     }
+
+    .mobile-user-section {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      padding-top: 8px;
+      border-top: 1px solid $border-light;
+    }
   }
 
-  .search-form {
-    display: none;             // 移动端隐藏搜索框
+  .header-right {
+    display: none;             // 移动端隐藏搜索框和用户信息
   }
 
   .mobile-toggle {

@@ -62,40 +62,40 @@ onMounted(loadCategories)
 <template>
   <div>
     <div class="page-header">
-      <h1 class="page-title">Categories</h1>
-      <button class="btn btn-primary" @click="openCreate">New Category</button>
+      <h1 class="page-title">分类管理</h1>
+      <button class="btn btn-primary" @click="openCreate">新建分类</button>
     </div>
 
     <!-- 新建/编辑表单 -->
     <div v-if="showForm" class="card form-card">
-      <h3>{{ editingId ? 'Edit' : 'New' }} Category</h3>
+      <h3>{{ editingId ? '编辑' : '新建' }}分类</h3>
       <div class="form-group">
-        <label>Name</label>
+        <label>名称</label>
         <input v-model="form.name" />
       </div>
       <div class="form-group">
-        <label>Slug</label>
-        <input v-model="form.slug" placeholder="auto-generated if empty" />
+        <label>别名</label>
+        <input v-model="form.slug" placeholder="留空则自动生成" />
       </div>
       <div class="form-group">
-        <label>Description</label>
+        <label>描述</label>
         <input v-model="form.description" />
       </div>
       <div class="form-actions">
-        <button class="btn" @click="showForm = false">Cancel</button>
-        <button class="btn btn-primary" @click="handleSubmit">Save</button>
+        <button class="btn" @click="showForm = false">取消</button>
+        <button class="btn btn-primary" @click="handleSubmit">保存</button>
       </div>
     </div>
 
-    <div v-if="loading" class="loading"><span>Loading...</span></div>
+    <div v-if="loading" class="loading"><span>加载中...</span></div>
     <!-- 分类数据表格 -->
     <table v-else class="data-table">
       <thead>
         <tr>
-          <th>Name</th>
-          <th>Slug</th>
-          <th>Description</th>
-          <th>Actions</th>
+          <th>名称</th>
+          <th>别名</th>
+          <th>描述</th>
+          <th>操作</th>
         </tr>
       </thead>
       <tbody>
@@ -104,8 +104,8 @@ onMounted(loadCategories)
           <td>{{ cat.slug }}</td>
           <td>{{ cat.description || '-' }}</td>
           <td class="actions">
-            <button class="btn btn-sm" @click="openEdit(cat)">Edit</button>
-            <button class="btn btn-sm btn-danger" @click="deleteTarget = cat.id">Delete</button>
+            <button class="btn btn-sm" @click="openEdit(cat)">编辑</button>
+            <button class="btn btn-sm btn-danger" @click="deleteTarget = cat.id">删除</button>
           </td>
         </tr>
       </tbody>
@@ -114,8 +114,8 @@ onMounted(loadCategories)
     <!-- 删除确认对话框 -->
     <ConfirmDialog
       :visible="deleteTarget !== null"
-      title="Delete Category"
-      message="Are you sure you want to delete this category?"
+      title="删除分类"
+      message="确定要删除这个分类吗？"
       @confirm="handleDelete"
       @cancel="deleteTarget = null"
     />

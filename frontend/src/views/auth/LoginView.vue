@@ -33,24 +33,24 @@ async function handleLogin() {
 <template>
   <div class="auth-page">
     <div class="card auth-form">
-      <h1 class="auth-title">Login</h1>
+      <h1 class="auth-title">登录</h1>
       <!-- 错误提示 -->
       <div v-if="error" class="auth-error">{{ error }}</div>
       <form @submit.prevent="handleLogin">
         <div class="form-group">
-          <label>Username</label>
+          <label>用户名</label>
           <input v-model="username" type="text" required />
         </div>
         <div class="form-group">
-          <label>Password</label>
+          <label>密码</label>
           <input v-model="password" type="password" required />
         </div>
         <button type="submit" class="btn btn-primary" style="width: 100%;" :disabled="loading">
-          {{ loading ? 'Logging in...' : 'Login' }}
+          {{ loading ? '登录中...' : '登录' }}
         </button>
       </form>
       <p class="auth-link">
-        Don't have an account? <router-link to="/register">Register</router-link>
+        还没有账号？ <router-link to="/register">注册</router-link>
       </p>
     </div>
   </div>

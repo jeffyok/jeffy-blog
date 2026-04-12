@@ -43,9 +43,9 @@ watch(page, loadArticles)                 // 页码变化时重新加载
 
 <template>
   <div>
-    <h1 class="page-title">Tag: {{ tag?.name || route.params.slug }}</h1>
-    <div v-if="loading" class="loading"><span>Loading...</span></div>
-    <div v-else-if="articles.length === 0" class="empty">No articles with this tag.</div>
+    <h1 class="page-title">标签：{{ tag?.name || route.params.slug }}</h1>
+    <div v-if="loading" class="loading"><span>加载中...</span></div>
+    <div v-else-if="articles.length === 0" class="empty">该标签下暂无文章。</div>
     <template v-else>
       <ArticleCard v-for="article in articles" :key="article.id" :article="article" />
       <Pagination :total="total" :page="page" :page-size="pageSize" @update:page="page = $event" />

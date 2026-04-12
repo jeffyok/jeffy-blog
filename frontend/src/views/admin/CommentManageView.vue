@@ -53,43 +53,43 @@ onMounted(loadComments)
 
 <template>
   <div>
-    <h1 class="page-title">Comments</h1>
+    <h1 class="page-title">评论管理</h1>
 
     <!-- 状态过滤 -->
     <div class="filters">
       <select v-model="statusFilter" @change="page = 1; loadComments()">
-        <option value="">All Status</option>
-        <option value="pending">Pending</option>
-        <option value="approved">Approved</option>
-        <option value="rejected">Rejected</option>
+        <option value="">全部状态</option>
+        <option value="pending">待审核</option>
+        <option value="approved">已通过</option>
+        <option value="rejected">已拒绝</option>
       </select>
     </div>
 
-    <div v-if="loading" class="loading"><span>Loading...</span></div>
-    <div v-else-if="comments.length === 0" class="empty">No comments found.</div>
+    <div v-if="loading" class="loading"><span>加载中...</span></div>
+    <div v-else-if="comments.length === 0" class="empty">未找到评论。</div>
     <!-- 评论数据表格 -->
     <table v-else class="data-table">
       <thead>
         <tr>
-          <th>Content</th>
-          <th>Author</th>
-          <th>Status</th>
-          <th>Date</th>
-          <th>Actions</th>
+          <th>内容</th>
+          <th>作者</th>
+          <th>状态</th>
+          <th>时间</th>
+          <th>操作</th>
         </tr>
       </thead>
       <tbody>
         <tr v-for="comment in comments" :key="comment.id">
           <td class="content-cell">{{ comment.content }}</td>
-          <td>{{ comment.user?.username || comment.nickname || 'Guest' }}</td>
+          <td>{{ comment.user?.username || comment.nickname || '游客' }}</td>
           <td><span :class="['status-tag', comment.status]">{{ comment.status }}</span></td>
           <td>{{ formatDateTime(comment.created_at) }}</td>
           <td class="actions">
             <!-- 非已通过状态才显示"通过"按钮 -->
-            <button v-if="comment.status !== 'approved'" class="btn btn-sm" @click="approve(comment.id)">Approve</button>
+            <button v-if="comment.status !== 'approved'" class="btn btn-sm" @click="approve(comment.id)">通过</button>
             <!-- 非已拒绝状态才显示"拒绝"按钮 -->
-            <button v-if="comment.status !== 'rejected'" class="btn btn-sm" @click="reject(comment.id)">Reject</button>
-            <button class="btn btn-sm btn-danger" @click="deleteTarget = comment.id">Delete</button>
+            <button v-if="comment.status !== 'rejected'" class="btn btn-sm" @click="reject(comment.id)">拒绝</button>
+            <button class="btn btn-sm btn-danger" @click="deleteTarget = comment.id">删除</button>
           </td>
         </tr>
       </tbody>
@@ -98,8 +98,8 @@ onMounted(loadComments)
     <!-- 删除确认对话框 -->
     <ConfirmDialog
       :visible="deleteTarget !== null"
-      title="Delete Comment"
-      message="Are you sure you want to delete this comment?"
+      title="删除评论"
+      message="确定要删除这条评论吗？"
       @confirm="handleDelete"
       @cancel="deleteTarget = null"
     />

@@ -15,6 +15,11 @@ export function getArticle(slug: string) {
   return api.get<Article>(`/articles/${slug}`)
 }
 
+/** 根据 ID 获取文章详情（用于编辑） */
+export function getArticleById(id: number) {
+  return api.get<Article>(`/articles/id/${id}`)
+}
+
 /** 创建新文章 */
 export function createArticle(data: ArticleCreate) {
   return api.post<Article>('/articles/', data)

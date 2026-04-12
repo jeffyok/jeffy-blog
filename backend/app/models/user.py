@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """用户模型"""
 
 from sqlalchemy import String
@@ -23,3 +24,4 @@ class User(Base, TimestampMixin):
 
     # 关联关系
     articles: Mapped[list["Article"]] = relationship(back_populates="author")
+    comments: Mapped[list["Comment"]] = relationship(back_populates="user")

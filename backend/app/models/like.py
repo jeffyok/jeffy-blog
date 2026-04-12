@@ -1,6 +1,7 @@
+# -*- coding: utf-8 -*-
 """点赞模型"""
 
-from datetime import datetime
+from datetime import datetime, timezone
 
 from sqlalchemy import ForeignKey
 from sqlalchemy.orm import Mapped, mapped_column, relationship
@@ -16,7 +17,9 @@ class Like(Base):
 
     user_id: Mapped[int] = mapped_column(ForeignKey("users.id", ondelete="CASCADE"), primary_key=True, comment="用户ID")
     article_id: Mapped[int] = mapped_column(ForeignKey("articles.id", ondelete="CASCADE"), primary_key=True, comment="文章ID")
-    created_at: Mapped[datetime] = mapped_column(default=datetime.utcnow, comment="点赞时间")
+    created_at: Mapped[datetime] = mapped_column(
+        default=lambda: datetime.now(timezone.utc), comment="点赞时间"
+    )
 
     # 关联关系
     article: Mapped["Article"] = relationship()

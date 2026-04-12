@@ -19,42 +19,42 @@ onMounted(async () => {
 
 <template>
   <div>
-    <h1 class="page-title">Dashboard</h1>
-    <div v-if="loading" class="loading"><span>Loading...</span></div>
+    <h1 class="page-title">仪表盘</h1>
+    <div v-if="loading" class="loading"><span>加载中...</span></div>
     <template v-else-if="stats">
       <!-- 统计卡片网格 -->
       <div class="stats-grid">
         <div class="card stat-card">
           <div class="stat-value">{{ stats.total_articles }}</div>
-          <div class="stat-label">Total Articles</div>
+          <div class="stat-label">文章总数</div>
         </div>
         <div class="card stat-card">
           <div class="stat-value">{{ stats.published_articles }}</div>
-          <div class="stat-label">Published</div>
+          <div class="stat-label">已发布</div>
         </div>
         <div class="card stat-card">
           <div class="stat-value">{{ stats.draft_articles }}</div>
-          <div class="stat-label">Drafts</div>
+          <div class="stat-label">草稿</div>
         </div>
         <div class="card stat-card">
           <div class="stat-value">{{ stats.total_comments }}</div>
-          <div class="stat-label">Comments</div>
+          <div class="stat-label">评论数</div>
         </div>
         <div class="card stat-card">
           <div class="stat-value">{{ stats.total_views }}</div>
-          <div class="stat-label">Total Views</div>
+          <div class="stat-label">总浏览</div>
         </div>
         <div class="card stat-card">
           <div class="stat-value">{{ stats.total_likes }}</div>
-          <div class="stat-label">Total Likes</div>
+          <div class="stat-label">总点赞</div>
         </div>
         <div class="card stat-card">
           <div class="stat-value">{{ stats.total_users }}</div>
-          <div class="stat-label">Users</div>
+          <div class="stat-label">用户数</div>
         </div>
         <div class="card stat-card">
           <div class="stat-value">{{ stats.pending_comments }}</div>
-          <div class="stat-label">Pending Comments</div>
+          <div class="stat-label">待审核评论</div>
         </div>
       </div>
     </template>

@@ -19,9 +19,9 @@ onMounted(async () => {
 
 <template>
   <div>
-    <h1 class="page-title">Friend Links</h1>
-    <div v-if="loading" class="loading"><span>Loading...</span></div>
-    <div v-else-if="links.length === 0" class="empty">No friend links yet.</div>
+    <h1 class="page-title">友情链接</h1>
+    <div v-if="loading" class="loading"><span>加载中...</span></div>
+    <div v-else-if="links.length === 0" class="empty">暂无友情链接。</div>
     <!-- 友链网格 -->
     <div v-else class="friends-grid">
       <a v-for="link in links" :key="link.id" :href="link.url" target="_blank" rel="noopener" class="card friend-card">

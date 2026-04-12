@@ -79,12 +79,15 @@ function setupScrollSpy() {
 
 <template>
   <div class="article-detail-page">
-    <div v-if="loading" class="loading"><span>Loading...</span></div>
+    <div v-if="loading" class="loading"><span>加载中...</span></div>
     <template v-else-if="article">
       <div class="main-column">
         <!-- 文章主体 -->
         <article class="card article-content">
-          <h1 class="article-title">{{ article.title }}</h1>
+          <div class="article-header">
+            <span v-if="article.is_top" class="top-tag">置顶</span>
+            <h1 class="article-title">{{ article.title }}</h1>
+          </div>
           <div class="article-meta">
             <span v-if="article.author">{{ article.author.username }}</span>
             <span>{{ formatDate(article.created_at) }}</span>
@@ -109,7 +112,7 @@ function setupScrollSpy() {
       <!-- 目录侧边栏（仅在存在标题时显示） -->
       <aside v-if="tocHeadings.length" class="toc-sidebar">
         <div class="card">
-          <h3 class="toc-title">Table of Contents</h3>
+          <h3 class="toc-title">目录</h3>
           <nav class="toc-list">
             <a
               v-for="heading in tocHeadings"
@@ -124,7 +127,7 @@ function setupScrollSpy() {
         </div>
       </aside>
     </template>
-    <div v-else class="empty">Article not found.</div>
+    <div v-else class="empty">文章未找到。</div>
   </div>
 </template>
 
@@ -146,9 +149,25 @@ function setupScrollSpy() {
   padding: 32px;
 }
 
+.article-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
 .article-title {
   font-size: 28px;
-  margin-bottom: 16px;
+  margin: 0;
+}
+
+.top-tag {
+  padding: 2px 8px;
+  background: $primary;
+  color: #fff;
+  font-size: 12px;
+  border-radius: 4px;
+  white-space: nowrap;
 }
 
 .article-meta {

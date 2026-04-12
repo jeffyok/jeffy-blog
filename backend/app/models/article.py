@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """文章模型"""
 
 from sqlalchemy import ForeignKey, String, Text

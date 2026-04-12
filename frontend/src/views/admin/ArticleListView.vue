@@ -53,34 +53,34 @@ onMounted(loadArticles)
   <div>
     <!-- 页头：标题 + 新建按钮 -->
     <div class="page-header">
-      <h1 class="page-title">Articles</h1>
-      <router-link to="/admin/articles/new" class="btn btn-primary">New Article</router-link>
+      <h1 class="page-title">文章管理</h1>
+      <router-link to="/admin/articles/new" class="btn btn-primary">新建文章</router-link>
     </div>
 
     <!-- 搜索和状态过滤 -->
     <div class="filters">
-      <input v-model="search" placeholder="Search..." @keyup.enter="handleSearch" />
+      <input v-model="search" placeholder="搜索文章..." @keyup.enter="handleSearch" />
       <select v-model="statusFilter" @change="page = 1; loadArticles()">
-        <option value="">All Status</option>
-        <option value="published">Published</option>
-        <option value="draft">Draft</option>
+        <option value="">全部状态</option>
+        <option value="published">已发布</option>
+        <option value="draft">草稿</option>
       </select>
     </div>
 
-    <div v-if="loading" class="loading"><span>Loading...</span></div>
-    <div v-else-if="articles.length === 0" class="empty">No articles found.</div>
+    <div v-if="loading" class="loading"><span>加载中...</span></div>
+    <div v-else-if="articles.length === 0" class="empty">未找到文章。</div>
     <template v-else>
       <!-- 文章数据表格 -->
       <table class="data-table">
         <thead>
           <tr>
-            <th>Title</th>
-            <th>Status</th>
-            <th>Category</th>
-            <th>Views</th>
-            <th>Likes</th>
-            <th>Created</th>
-            <th>Actions</th>
+            <th>标题</th>
+            <th>状态</th>
+            <th>分类</th>
+            <th>浏览</th>
+            <th>点赞</th>
+            <th>创建时间</th>
+            <th>操作</th>
           </tr>
         </thead>
         <tbody>
@@ -92,8 +92,8 @@ onMounted(loadArticles)
             <td>{{ article.like_count }}</td>
             <td>{{ formatDateTime(article.created_at) }}</td>
             <td class="actions">
-              <router-link :to="`/admin/articles/${article.id}/edit`" class="btn btn-sm">Edit</router-link>
-              <button class="btn btn-sm btn-danger" @click="deleteTarget = article.id">Delete</button>
+              <router-link :to="`/admin/articles/${article.id}/edit`" class="btn btn-sm">编辑</router-link>
+              <button class="btn btn-sm btn-danger" @click="deleteTarget = article.id">删除</button>
             </td>
           </tr>
         </tbody>
@@ -103,8 +103,8 @@ onMounted(loadArticles)
     <!-- 删除确认对话框 -->
     <ConfirmDialog
       :visible="deleteTarget !== null"
-      title="Delete Article"
-      message="Are you sure you want to delete this article? This action cannot be undone."
+      title="删除文章"
+      message="确定要删除这篇文章吗？此操作无法撤销。"
       @confirm="handleDelete"
       @cancel="deleteTarget = null"
     />

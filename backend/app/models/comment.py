@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """评论模型"""
 
 from sqlalchemy import ForeignKey, String, Text
@@ -24,6 +25,15 @@ class Comment(Base, TimestampMixin):
 
     # 关联关系
     article: Mapped["Article"] = relationship(back_populates="comments")
-    user: Mapped["User | None"] = relationship()
-    parent: Mapped["Comment | None"] = relationship(remote_side="Comment.id", back_populates="replies")
-    replies: Mapped[list["Comment"]] = relationship(back_populates="parent", cascade="all, delete-orphan")
+    user: Mapped["User | None"] = relationship(back_populates="comments")
+    parent: Mapped["Comment | None"] = relationship(
+        "Comment",
+        back_populates="replies",
+        remote_side=[id],
+        foreign_keys=[parent_id],
+    )
+    replies: Mapped[list["Comment"]] = relationship(
+        "Comment",
+        back_populates="parent",
+        foreign_keys=[parent_id],
+    )

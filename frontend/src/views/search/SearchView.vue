@@ -42,15 +42,15 @@ watch(() => route.query.q, (q) => {
 
 <template>
   <div>
-    <h1 class="page-title">Search</h1>
+    <h1 class="page-title">搜索</h1>
     <form class="search-box" @submit.prevent="handleSearch">
-      <input v-model="searchQuery" type="text" placeholder="Enter keywords..." />
-      <button type="submit" class="btn btn-primary">Search</button>
+      <input v-model="searchQuery" type="text" placeholder="输入关键词..." />
+      <button type="submit" class="btn btn-primary">搜索</button>
     </form>
-    <div v-if="loading" class="loading"><span>Loading...</span></div>
-    <div v-else-if="searchQuery && articles.length === 0" class="empty">No results found for "{{ searchQuery }}".</div>
+    <div v-if="loading" class="loading"><span>加载中...</span></div>
+    <div v-else-if="searchQuery && articles.length === 0" class="empty">未找到与 "{{ searchQuery }}" 相关的文章。</div>
     <template v-else-if="articles.length > 0">
-      <p class="result-count">Found {{ articles.length }} articles.</p>
+      <p class="result-count">找到 {{ articles.length }} 篇文章。</p>
       <ArticleCard v-for="article in articles" :key="article.id" :article="article" />
     </template>
   </div>

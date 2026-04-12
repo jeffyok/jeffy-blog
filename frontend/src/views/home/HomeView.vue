@@ -42,9 +42,9 @@ async function loadSidebar() {
   <div class="home-page">
     <!-- 左侧主内容：文章列表 -->
     <div class="main-column">
-      <h1 class="page-title">Latest Articles</h1>
-      <div v-if="store.loading" class="loading"><span>Loading...</span></div>
-      <div v-else-if="store.articles.length === 0" class="empty">No articles yet.</div>
+      <h1 class="page-title">最新文章</h1>
+      <div v-if="store.loading" class="loading"><span>加载中...</span></div>
+      <div v-else-if="store.articles.length === 0" class="empty">暂无文章。</div>
       <template v-else>
         <ArticleCard v-for="article in store.articles" :key="article.id" :article="article" />
         <Pagination :total="store.total" :page="page" :page-size="pageSize" @update:page="page = $event" />
@@ -54,7 +54,7 @@ async function loadSidebar() {
     <aside class="sidebar">
       <!-- 分类列表 -->
       <div v-if="categories.length" class="card sidebar-section">
-        <h3 class="sidebar-title">Categories</h3>
+        <h3 class="sidebar-title">分类</h3>
         <ul class="sidebar-list">
           <li v-for="cat in categories" :key="cat.id">
             <router-link :to="`/category/${cat.slug}`">{{ cat.name }}</router-link>
@@ -63,7 +63,7 @@ async function loadSidebar() {
       </div>
       <!-- 标签云 -->
       <div v-if="tags.length" class="card sidebar-section">
-        <h3 class="sidebar-title">Tags</h3>
+        <h3 class="sidebar-title">标签</h3>
         <div class="tag-cloud">
           <router-link v-for="tag in tags" :key="tag.id" :to="`/tag/${tag.slug}`" class="tag">{{ tag.name }}</router-link>
         </div>

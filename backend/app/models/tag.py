@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """标签模型及文章-标签关联表"""
 
 from sqlalchemy import Column, ForeignKey, Integer, String, Table
