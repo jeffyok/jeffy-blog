@@ -34,3 +34,18 @@ async def login(form: OAuth2PasswordRequestForm = Depends(), db: AsyncSession = 
 async def get_me(current_user: User = Depends(get_current_user)):
     """获取当前登录用户信息（需携带有效令牌）"""
     return current_user
+
+
+@router.get("/test-token")
+async def test_token(token: str):
+    """测试 token 解析，用于调试"""
+    from app.core.security import decode_access_token
+    import sys
+    print(f"[TEST] Received token: {token[:50]}...")
+    try:
+        payload = decode_access_token(token)
+        print(f"[TEST] Decoded payload: {payload}")
+        return {"success": True, "payload": payload}
+    except Exception as e:
+        print(f"[TEST] Error: {e}")
+        return {"success": False, "error": str(e)}

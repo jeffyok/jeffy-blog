@@ -31,6 +31,15 @@ app = FastAPI(
     lifespan=lifespan,
 )
 
+# 调试中间件：打印请求信息
+@app.middleware("http")
+async def debug_middleware(request, call_next):
+    if "/api/articles/" in str(request.url):
+        print(f"[DEBUG] Request URL: {request.url}")
+        print(f"[DEBUG] Query params: {request.query_params}")
+    response = await call_next(request)
+    return response
+
 # 注册跨域中间件，允许前端跨域访问
 app.add_middleware(
     CORSMiddleware,

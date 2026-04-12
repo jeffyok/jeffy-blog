@@ -13,7 +13,7 @@ export const useArticlesStore = defineStore('articles', () => {
   const loading = ref(false)
 
   /** 获取文章列表（分页，支持过滤） */
-  async function fetchArticles(params?: { page?: number; page_size?: number; category_id?: number; tag_id?: number; search?: string }) {
+  async function fetchArticles(params?: { page?: number; page_size?: number; category_id?: number; tag_id?: number; search?: string; status?: string }) {
     loading.value = true
     try {
       const { data } = await articlesApi.getArticles(params)

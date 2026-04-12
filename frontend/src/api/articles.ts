@@ -6,7 +6,7 @@ import api from '.'
 import type { Article, ArticleCreate, ArticlePagination, ArticleUpdate } from '@/types/article'
 
 /** 获取文章列表（分页，支持分类/标签/搜索过滤） */
-export function getArticles(params?: { page?: number; page_size?: number; category_id?: number; tag_id?: number; search?: string }) {
+export function getArticles(params?: { page?: number; page_size?: number; category_id?: number; tag_id?: number; search?: string; status?: string }) {
   return api.get<ArticlePagination>('/articles/', { params })
 }
 

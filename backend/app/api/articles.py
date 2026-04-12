@@ -28,11 +28,13 @@ async def list_articles(
     category_id: int | None = None,          # 按分类过滤
     tag_id: int | None = None,               # 按标签过滤
     search: str | None = None,               # 搜索关键词
+    status: str | None = None,               # 状态过滤：不传则返回所有状态
     db: AsyncSession = Depends(get_db),
 ):
-    """获取已发布文章列表（分页，支持分类/标签/搜索过滤）"""
+    """获取文章列表（分页，支持分类/标签/搜索过滤）"""
+    print(f"[DEBUG API] Received status={repr(status)}, type={type(status)}")
     articles, total = await ArticleService.get_articles(
-        db, page=page, page_size=page_size, category_id=category_id, tag_id=tag_id, search=search
+        db, page=page, page_size=page_size, category_id=category_id, tag_id=tag_id, search=search, status=status
     )
     return ArticlePaginationOut(items=articles, total=total, page=page, page_size=page_size)
 

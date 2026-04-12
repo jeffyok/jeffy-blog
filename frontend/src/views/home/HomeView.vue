@@ -18,14 +18,14 @@ const pageSize = 10
 onMounted(async () => {
   // 并行加载文章列表和侧边栏数据
   await Promise.all([
-    store.fetchArticles({ page: 1, page_size: pageSize }),
+    store.fetchArticles({ page: 1, page_size: pageSize, status: 'published' }),
     loadSidebar(),
   ])
 })
 
 // 页码变化时重新加载文章
 watch(page, (newPage) => {
-  store.fetchArticles({ page: newPage, page_size: pageSize })
+  store.fetchArticles({ page: newPage, page_size: pageSize, status: 'published' })
 })
 
 /** 加载侧边栏分类和标签 */

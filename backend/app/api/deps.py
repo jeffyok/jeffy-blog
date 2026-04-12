@@ -25,19 +25,27 @@ async def get_current_user(
     失败时抛出 401 异常
     """
     token = credentials.credentials
+    import sys
+    print(f"[DEBUG] Received token (first 50 chars): {token[:50]}...")
+    print(f"[DEBUG] Token length: {len(token)}")
     try:
         payload = decode_access_token(token)
+        print(f"[DEBUG] Decoded payload: {payload}")
         user_id = payload.get("sub")
+        print(f"[DEBUG] user_id from payload: {user_id}, type: {type(user_id)}")
         if user_id is None:
-            raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid token")
+            raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid token: no sub")
         # JWT payload 中的 sub 可能是字符串或数字，需要转换为整数
         try:
             user_id = int(user_id)
-        except (ValueError, TypeError):
-            raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid token")
+            print(f"[DEBUG] Converted user_id to int: {user_id}")
+        except (ValueError, TypeError) as e:
+            print(f"[DEBUG] Failed to convert user_id to int: {e}")
+            raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid token: invalid user_id")
     except HTTPException:
         raise
-    except Exception:
+    except Exception as e:
+        print(f"[DEBUG] Token decode error: {e}")
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid token")
     user = await AuthService.get_user_by_id(db, user_id)
     if user is None:

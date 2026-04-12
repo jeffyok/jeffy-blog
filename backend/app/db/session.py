@@ -9,7 +9,8 @@ from sqlalchemy.orm import DeclarativeBase
 from app.core.config import settings
 
 # 创建异步数据库引擎
-async_engine = create_async_engine(settings.DATABASE_URL, echo=False)
+async_engine = create_async_engine(settings.DATABASE_URL,
+ connect_args={'init_command': 'SET time_zone="+08:00"'}, echo=False)
 # 创建异步会话工厂
 AsyncSessionLocal = async_sessionmaker(bind=async_engine, class_=AsyncSession, expire_on_commit=False)
 

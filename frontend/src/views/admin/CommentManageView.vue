@@ -5,6 +5,7 @@ import { adminGetComments, updateCommentStatus, deleteComment } from '@/api/comm
 import type { Comment } from '@/types/comment'
 import { formatDateTime } from '@/utils/format'
 import ConfirmDialog from '@/components/common/ConfirmDialog.vue'
+import Pagination from '@/components/common/Pagination.vue'
 
 const comments = ref<Comment[]>([])
 const total = ref(0)
@@ -13,6 +14,16 @@ const pageSize = 20
 const loading = ref(true)
 const statusFilter = ref('')
 const deleteTarget = ref<number | null>(null)
+
+/** 状态转换：英文转中文 */
+function getStatusText(status: string) {
+  const statusMap: Record<string, string> = {
+    pending: '待审核',
+    approved: '已通过',
+    rejected: '已拒绝'
+  }
+  return statusMap[status] || status
+}
 
 /** 加载评论列表（支持状态过滤） */
 async function loadComments() {
@@ -82,7 +93,7 @@ onMounted(loadComments)
         <tr v-for="comment in comments" :key="comment.id">
           <td class="content-cell">{{ comment.content }}</td>
           <td>{{ comment.user?.username || comment.nickname || '游客' }}</td>
-          <td><span :class="['status-tag', comment.status]">{{ comment.status }}</span></td>
+          <td><span :class="['status-tag', comment.status]">{{ getStatusText(comment.status) }}</span></td>
           <td>{{ formatDateTime(comment.created_at) }}</td>
           <td class="actions">
             <!-- 非已通过状态才显示"通过"按钮 -->
@@ -102,6 +113,15 @@ onMounted(loadComments)
       message="确定要删除这条评论吗？"
       @confirm="handleDelete"
       @cancel="deleteTarget = null"
+    />
+
+    <!-- 分页组件 -->
+    <Pagination
+      v-if="!loading && comments.length > 0"
+      :total="total"
+      :page="page"
+      :page-size="pageSize"
+      @update:page="(p) => { page = p; loadComments() }"
     />
   </div>
 </template>

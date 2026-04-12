@@ -49,6 +49,7 @@ class CommentService:
         """
         result = await db.execute(
             select(Comment)
+            .options(selectinload(Comment.user))  # 预加载关联的用户数据
             .where(Comment.article_id == article_id, Comment.status == "approved")
             .order_by(Comment.created_at)
         )

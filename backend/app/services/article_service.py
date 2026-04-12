@@ -56,9 +56,10 @@ class ArticleService:
         category_id: int | None = None,
         tag_id: int | None = None,
         search: str | None = None,
-        status: str | None = "published",
+        status: str | None = None,
     ) -> tuple[list[Article], int]:
         """分页查询文章列表 - 支持按分类、标签、关键词筛选"""
+        print(f"[DEBUG] get_articles called with status={repr(status)}, type={type(status)}")
         # 构建主查询，预加载关联的category、tags、author
         query = select(Article).options(
             selectinload(Article.category),
@@ -71,8 +72,10 @@ class ArticleService:
 
         # 按状态筛选
         if status:
+            print(f"[DEBUG] Filtering by status: {status}")
             query = query.where(Article.status == status)
             count_query = count_query.where(Article.status == status)
+            print(f"[DEBUG] Query after status filter: {str(query)[:200]}")
         # 按分类筛选
         if category_id:
             query = query.where(Article.category_id == category_id)
@@ -89,14 +92,20 @@ class ArticleService:
 
         # 获取总数
         total = (await db.execute(count_query)).scalar() or 0
+        print(f"[DEBUG] Total count: {total}")
 
         # 排序：置顶优先，然后按创建时间降序
         query = query.order_by(Article.is_top.desc(), Article.created_at.desc())
         # 分页偏移
         query = query.offset((page - 1) * page_size).limit(page_size)
 
+        print(f"[DEBUG] Final query: {str(query)[:300]}...")
         result = await db.execute(query)
-        return list(result.scalars().all()), total
+        articles = list(result.scalars().all())
+        print(f"[DEBUG] Result count: {len(articles)}")
+        for article in articles:
+            print(f"[DEBUG] Article ID: {article.id}, Title: {article.title[:30]}, Status: {article.status}")
+        return articles, total
 
     @staticmethod
     async def get_article_by_slug(db: AsyncSession, slug: str) -> Article | None:

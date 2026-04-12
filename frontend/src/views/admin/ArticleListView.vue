@@ -6,6 +6,7 @@ import { getArticles, deleteArticle } from '@/api/articles'
 import type { ArticleListItem } from '@/types/article'
 import { formatDateTime } from '@/utils/format'
 import ConfirmDialog from '@/components/common/ConfirmDialog.vue'
+import Pagination from '@/components/common/Pagination.vue'
 
 const router = useRouter()
 const articles = ref<ArticleListItem[]>([])
@@ -17,12 +18,22 @@ const deleteTarget = ref<number | null>(null)  // 待删除的文章 ID
 const search = ref('')
 const statusFilter = ref('')
 
+/** 状态转换：英文转中文 */
+function getStatusText(status: string) {
+  const statusMap: Record<string, string> = {
+    draft: '草稿',
+    published: '已发布'
+  }
+  return statusMap[status] || status
+}
+
 /** 加载文章列表（支持搜索和状态过滤） */
 async function loadArticles() {
   loading.value = true
   try {
-    const params: Record<string, unknown> = { page: page.value, page_size: pageSize, status: 'all' }
-    if (statusFilter.value) params.status = statusFilter.value
+    const params: Record<string, unknown> = { page: page.value, page_size: pageSize }
+    // 只有当明确选择了状态时才传递 status 参数，空字符串表示全部状态
+    if (statusFilter.value !== '') params.status = statusFilter.value
     if (search.value) params.search = search.value
     const { data } = await getArticles(params as Parameters<typeof getArticles>[0])
     articles.value = data.items
@@ -86,7 +97,7 @@ onMounted(loadArticles)
         <tbody>
           <tr v-for="article in articles" :key="article.id">
             <td>{{ article.title }}</td>
-            <td><span :class="['status-tag', article.status]">{{ article.status }}</span></td>
+            <td><span :class="['status-tag', article.status]">{{ getStatusText(article.status) }}</span></td>
             <td>{{ article.category?.name || '-' }}</td>
             <td>{{ article.view_count }}</td>
             <td>{{ article.like_count }}</td>
@@ -107,6 +118,15 @@ onMounted(loadArticles)
       message="确定要删除这篇文章吗？此操作无法撤销。"
       @confirm="handleDelete"
       @cancel="deleteTarget = null"
+    />
+
+    <!-- 分页组件 -->
+    <Pagination
+      v-if="!loading && articles.length > 0"
+      :total="total"
+      :page="page"
+      :page-size="pageSize"
+      @update:page="(p) => { page = p; loadArticles() }"
     />
   </div>
 </template>

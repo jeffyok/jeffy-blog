@@ -53,3 +53,42 @@ function goTo(page: number) {
     </button>
   </div>
 </template>
+
+<style scoped lang="scss">
+@use '@/assets/styles/variables' as *;
+
+.pagination {
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+  margin-top: 16px;
+}
+
+.page-btn {
+  min-width: 36px;
+  height: 36px;
+  padding: 0 8px;
+  border: 1px solid $border;
+  background: $bg-white;
+  border-radius: 4px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.2s;
+
+  &:hover:not(.disabled):not(.active) {
+    border-color: $primary;
+    color: $primary;
+  }
+
+  &.active {
+    background: $primary;
+    color: white;
+    border-color: $primary;
+  }
+
+  &.disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+  }
+}
+</style>
