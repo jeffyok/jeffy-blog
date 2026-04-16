@@ -32,6 +32,7 @@ onMounted(async () => {
           <ul class="article-list">
             <li v-for="article in month.articles" :key="article.id">
               <router-link :to="`/article/${article.slug}`">{{ article.title }}</router-link>
+              <span v-if="article.author" class="author">{{ article.author.username }}</span>
               <span class="date">{{ new Date(article.created_at).toLocaleDateString() }}</span>
             </li>
           </ul>
@@ -76,12 +77,20 @@ onMounted(async () => {
 
     a {
       color: $text;
+      flex: 1;
       &:hover { color: $primary; }
+    }
+
+    .author {
+      color: $text-secondary;
+      font-size: 13px;
+      margin: 0 12px;
     }
 
     .date {
       color: $text-secondary;
       font-size: 13px;
+      white-space: nowrap;
     }
   }
 }

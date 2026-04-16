@@ -4,6 +4,7 @@ from sqlalchemy import select, extract, func
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.models.article import Article
+from app.models.user import User
 
 
 class ArchiveService:
@@ -20,6 +21,17 @@ class ArchiveService:
         )
         articles = list(result.scalars().all())
 
+        if not articles:
+            return []
+
+        # 批量查询作者信息
+        author_ids = {a.author_id for a in articles}
+        authors_dict = {}
+        if author_ids:
+            result = await db.execute(select(User).where(User.id.in_(author_ids)))
+            authors = result.scalars().all()
+            authors_dict = {u.id: {"id": u.id, "username": u.username} for u in authors}
+
         # 按年月分组归档
         archives = {}
         for article in articles:
@@ -34,6 +46,7 @@ class ArchiveService:
                 "title": article.title,
                 "slug": article.slug,
                 "created_at": article.created_at.isoformat(),
+                "author": authors_dict.get(article.author_id),
             })
 
         # 按年份降序、月份降序组装返回结果

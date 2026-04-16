@@ -43,6 +43,10 @@ export interface ArchiveArticle {
   title: string
   slug: string
   created_at: string
+  author?: {
+    id: number
+    username: string
+  }
 }
 
 /** 归档月份 */

@@ -88,6 +88,7 @@ onMounted(loadArticles)
             <th>标题</th>
             <th>状态</th>
             <th>分类</th>
+            <th>作者</th>
             <th>浏览</th>
             <th>点赞</th>
             <th>创建时间</th>
@@ -99,6 +100,7 @@ onMounted(loadArticles)
             <td>{{ article.title }}</td>
             <td><span :class="['status-tag', article.status]">{{ getStatusText(article.status) }}</span></td>
             <td>{{ article.category?.name || '-' }}</td>
+            <td>{{ article.author?.username || '-' }}</td>
             <td>{{ article.view_count }}</td>
             <td>{{ article.like_count }}</td>
             <td>{{ formatDateTime(article.created_at) }}</td>

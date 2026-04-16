@@ -16,6 +16,7 @@ defineProps<{
     <div class="card-body">
       <div class="card-meta">
         <span v-if="article.is_top" class="top-tag">Top</span>
+        <span v-if="article.author" class="author-tag">{{ article.author.username }}</span>
         <span v-if="article.category" class="category-tag">{{ article.category.name }}</span>
         <span class="date">{{ new Date(article.created_at).toLocaleDateString() }}</span>
       </div>
@@ -92,6 +93,10 @@ defineProps<{
 
 .category-tag {
   color: $primary;
+}
+
+.author-tag {
+  color: $text-secondary;
 }
 
 .card-title {
