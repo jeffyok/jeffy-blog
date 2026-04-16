@@ -22,6 +22,4 @@ class User(Base, TimestampMixin):
     role: Mapped[str] = mapped_column(String(20), default="user", comment="角色：user-普通用户，admin-管理员")
     is_active: Mapped[bool] = mapped_column(default=True, comment="是否激活")
 
-    # 关联关系
-    articles: Mapped[list["Article"]] = relationship(back_populates="author")
-    comments: Mapped[list["Comment"]] = relationship(back_populates="user")
+    # 关联关系：由于不使用数据库外键，改为在 Service 层手动查询

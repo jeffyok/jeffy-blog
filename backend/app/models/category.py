@@ -18,4 +18,4 @@ class Category(Base):
     slug: Mapped[str] = mapped_column(String(50), unique=True, index=True, comment="URL友好标识")
     description: Mapped[str | None] = mapped_column(String(200), comment="分类描述")
 
-    articles: Mapped[list["Article"]] = relationship(back_populates="category")
+    # 关联关系：由于不使用数据库外键，改为在 Service 层手动查询

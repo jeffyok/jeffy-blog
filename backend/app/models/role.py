@@ -3,7 +3,7 @@
 
 from datetime import datetime
 
-from sqlalchemy import Column, ForeignKey, Integer, String, Table
+from sqlalchemy import Column, Integer, String, Table
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.db.session import Base
@@ -14,8 +14,8 @@ from app.models.base import TimestampMixin
 role_permissions = Table(
     "role_permissions",
     Base.metadata,
-    Column("role_id", ForeignKey("roles.id", ondelete="CASCADE"), primary_key=True, comment="角色ID"),
-    Column("permission_id", ForeignKey("permissions.id", ondelete="CASCADE"), primary_key=True, comment="权限ID"),
+    Column("role_id", primary_key=True, comment="角色ID"),
+    Column("permission_id", primary_key=True, comment="权限ID"),
     comment="角色-权限关联表",
 )
 
@@ -24,8 +24,8 @@ role_permissions = Table(
 user_roles = Table(
     "user_roles",
     Base.metadata,
-    Column("user_id", ForeignKey("users.id", ondelete="CASCADE"), primary_key=True, comment="用户ID"),
-    Column("role_id", ForeignKey("roles.id", ondelete="CASCADE"), primary_key=True, comment="角色ID"),
+    Column("user_id", primary_key=True, comment="用户ID"),
+    Column("role_id", primary_key=True, comment="角色ID"),
     comment="用户-角色关联表",
 )
 
@@ -42,10 +42,4 @@ class Role(Base, TimestampMixin):
     description: Mapped[str | None] = mapped_column(String(200), comment="描述")
     is_default: Mapped[bool] = mapped_column(default=False, comment="是否为默认角色")
 
-    # 关联关系
-    permissions: Mapped[list["Permission"]] = relationship(
-        secondary="role_permissions", back_populates="roles"
-    )
-    users: Mapped[list["User"]] = relationship(
-        secondary="user_roles", back_populates="roles"
-    )
+    # 关联关系：由于不使用数据库外键，改为在 Service 层手动查询

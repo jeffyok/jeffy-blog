@@ -33,42 +33,43 @@ async def list_articles(
 ):
     """获取文章列表（分页，支持分类/标签/搜索过滤）"""
     print(f"[DEBUG API] Received status={repr(status)}, type={type(status)}")
-    articles, total = await ArticleService.get_articles(
+    articles, total = await ArticleService.get_articles_with_details(
         db, page=page, page_size=page_size, category_id=category_id, tag_id=tag_id, search=search, status=status
     )
     return ArticlePaginationOut(items=articles, total=total, page=page, page_size=page_size)
 
 
-@router.get("/{slug}", response_model=ArticleOut)
+@router.get("/{slug}")
 async def get_article(slug: str, db: AsyncSession = Depends(get_db)):
     """根据 slug 获取文章详情，同时增加浏览量"""
     article = await ArticleService.get_article_by_slug(db, slug)
     if article is None:
         raise HTTPException(status_code=404, detail="Article not found")
     await ArticleService.increment_view_count(db, article)
-    return article
+    return await ArticleService.get_article_detail_with_details(db, article)
 
 
-@router.get("/id/{article_id}", response_model=ArticleOut)
+@router.get("/id/{article_id}")
 async def get_article_by_id(article_id: int, db: AsyncSession = Depends(get_db)):
     """根据 ID 获取文章详情（用于编辑）"""
     article = await ArticleService.get_article_by_id(db, article_id)
     if article is None:
         raise HTTPException(status_code=404, detail="Article not found")
-    return article
+    return await ArticleService.get_article_detail_with_details(db, article)
 
 
-@router.post("/", response_model=ArticleOut, status_code=201)
+@router.post("/", status_code=201)
 async def create_article(
     data: ArticleCreate,
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(require_admin),  # 仅管理员可创建
 ):
     """创建新文章（需管理员权限）"""
-    return await ArticleService.create_article(db, data, current_user.id)
+    article = await ArticleService.create_article(db, data, current_user.id)
+    return await ArticleService.get_article_detail_with_details(db, article)
 
 
-@router.put("/{article_id}", response_model=ArticleOut)
+@router.put("/{article_id}")
 async def update_article(
     article_id: int,
     data: ArticleUpdate,
@@ -79,7 +80,8 @@ async def update_article(
     article = await ArticleService.get_article_by_id(db, article_id)
     if article is None:
         raise HTTPException(status_code=404, detail="Article not found")
-    return await ArticleService.update_article(db, article, data)
+    article = await ArticleService.update_article(db, article, data)
+    return await ArticleService.get_article_detail_with_details(db, article)
 
 
 @router.delete("/{article_id}", status_code=204)

@@ -12,10 +12,10 @@ from app.services.comment_service import CommentService
 router = APIRouter(prefix="/api", tags=["comments"])
 
 
-@router.get("/articles/{article_id}/comments", response_model=list[CommentOut])
+@router.get("/articles/{article_id}/comments")
 async def get_comments(article_id: int, db: AsyncSession = Depends(get_db)):
     try:
-        return await CommentService.get_comments_by_article(db, article_id)
+        return await CommentService.get_comments_with_user_info(db, article_id)
     except Exception as e:
         import traceback
         print(f"Error getting comments: {e}")
@@ -23,7 +23,7 @@ async def get_comments(article_id: int, db: AsyncSession = Depends(get_db)):
         raise HTTPException(status_code=500, detail=str(e))
 
 
-@router.post("/articles/{article_id}/comments", response_model=CommentOut, status_code=201)
+@router.post("/articles/{article_id}/comments", status_code=201)
 async def create_comment(
     article_id: int,
     data: CommentCreate,
@@ -33,7 +33,14 @@ async def create_comment(
     # Guest comments must have nickname and email
     if current_user is None and (not data.nickname or not data.email):
         raise HTTPException(status_code=400, detail="Guest comments require nickname and email")
-    return await CommentService.create_comment(db, article_id, data, user_id=current_user.id if current_user else None)
+    comment = await CommentService.create_comment(db, article_id, data, user_id=current_user.id if current_user else None)
+    # 返回组装后的评论数据
+    comments, _ = await CommentService.get_comments_with_user_info(db, article_id)
+    # 找到刚创建的评论
+    for c in comments:
+        if c["id"] == comment.id:
+            return c
+    return {"id": comment.id, "content": comment.content, "article_id": comment.article_id, "user_id": comment.user_id, "nickname": comment.nickname, "parent_id": comment.parent_id, "status": comment.status, "created_at": comment.created_at}
 
 
 # Admin endpoints
@@ -45,7 +52,7 @@ async def list_comments(
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(require_admin),
 ):
-    comments, total = await CommentService.get_all_comments(db, page=page, page_size=page_size, status=status)
+    comments, total = await CommentService.get_all_comments_with_user_info(db, page=page, page_size=page_size, status=status)
     return {"items": comments, "total": total, "page": page, "page_size": page_size}
 
 
@@ -59,7 +66,12 @@ async def update_comment_status(
     comment = await CommentService.update_comment_status(db, comment_id, status)
     if not comment:
         raise HTTPException(status_code=404, detail="Comment not found")
-    return comment
+    # 返回组装后的评论数据
+    comments, _ = await CommentService.get_comments_with_user_info(db, comment.article_id)
+    for c in comments:
+        if c["id"] == comment.id:
+            return c
+    return {"id": comment.id, "content": comment.content, "article_id": comment.article_id, "user_id": comment.user_id, "nickname": comment.nickname, "parent_id": comment.parent_id, "status": comment.status, "created_at": comment.created_at}
 
 
 @router.delete("/admin/comments/{comment_id}", status_code=204)

@@ -23,5 +23,4 @@ class Permission(Base):
         default=lambda: datetime.now(timezone.utc), comment="创建时间"
     )
 
-    # 关联关系
-    roles: Mapped[list["Role"]] = relationship(secondary="role_permissions", back_populates="permissions")
+    # 关联关系：由于不使用数据库外键，改为在 Service 层手动查询
