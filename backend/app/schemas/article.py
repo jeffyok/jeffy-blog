@@ -39,6 +39,7 @@ class TagOut(BaseModel):
     id: int  # 标签ID
     name: str  # 标签名称
     slug: str  # URL标识
+    created_at: datetime  # 创建时间
 
     model_config = {"from_attributes": True}  # 允许从ORM对象创建
 
@@ -50,6 +51,7 @@ class CategoryOut(BaseModel):
     name: str  # 分类名称
     slug: str  # URL标识
     description: str | None = None  # 分类描述
+    created_at: datetime  # 创建时间
 
     model_config = {"from_attributes": True}  # 允许从ORM对象创建
 

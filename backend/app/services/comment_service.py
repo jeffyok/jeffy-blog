@@ -133,12 +133,19 @@ class CommentService:
                 "content": comment.content,
                 "article_id": comment.article_id,
                 "user_id": comment.user_id,
-                "user": users_dict.get(comment.user_id) if comment.user_id else None,
+                "user": None,
                 "nickname": comment.nickname,
                 "parent_id": comment.parent_id,
                 "status": comment.status,
                 "created_at": comment.created_at,
             }
+            if comment.user_id and users_dict.get(comment.user_id):
+                user = users_dict[comment.user_id]
+                comment_dict["user"] = {
+                    "id": user.id,
+                    "username": user.username,
+                    "avatar": user.avatar
+                }
             result_list.append(comment_dict)
 
         return result_list
@@ -187,12 +194,19 @@ class CommentService:
                 "content": comment.content,
                 "article_id": comment.article_id,
                 "user_id": comment.user_id,
-                "user": users_dict.get(comment.user_id) if comment.user_id else None,
+                "user": None,
                 "nickname": comment.nickname,
                 "parent_id": comment.parent_id,
                 "status": comment.status,
                 "created_at": comment.created_at,
             }
+            if comment.user_id and users_dict.get(comment.user_id):
+                user = users_dict[comment.user_id]
+                comment_dict["user"] = {
+                    "id": user.id,
+                    "username": user.username,
+                    "avatar": user.avatar
+                }
             result_list.append(comment_dict)
 
         return result_list, total

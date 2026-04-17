@@ -90,6 +90,7 @@ onMounted(loadTags)
         <tr>
           <th>名称</th>
           <th>别名</th>
+          <th>创建时间</th>
           <th>操作</th>
         </tr>
       </thead>
@@ -97,6 +98,7 @@ onMounted(loadTags)
         <tr v-for="tag in tags" :key="tag.id">
           <td>{{ tag.name }}</td>
           <td>{{ tag.slug }}</td>
+          <td>{{ new Date(tag.created_at).toLocaleString('zh-CN') }}</td>
           <td class="actions">
             <button class="btn btn-sm" @click="openEdit(tag)">编辑</button>
             <button class="btn btn-sm btn-danger" @click="deleteTarget = tag.id">删除</button>

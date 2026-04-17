@@ -7,6 +7,7 @@ export interface Tag {
   id: number
   name: string
   slug: string
+  created_at: string
 }
 
 /** 分类 */
@@ -15,6 +16,7 @@ export interface Category {
   name: string
   slug: string
   description: string | null
+  created_at: string
 }
 
 /** 作者简要信息 */

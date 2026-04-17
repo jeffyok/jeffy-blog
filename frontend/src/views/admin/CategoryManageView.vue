@@ -95,6 +95,7 @@ onMounted(loadCategories)
           <th>名称</th>
           <th>别名</th>
           <th>描述</th>
+          <th>创建时间</th>
           <th>操作</th>
         </tr>
       </thead>
@@ -103,6 +104,7 @@ onMounted(loadCategories)
           <td>{{ cat.name }}</td>
           <td>{{ cat.slug }}</td>
           <td>{{ cat.description || '-' }}</td>
+          <td>{{ new Date(cat.created_at).toLocaleString('zh-CN') }}</td>
           <td class="actions">
             <button class="btn btn-sm" @click="openEdit(cat)">编辑</button>
             <button class="btn btn-sm btn-danger" @click="deleteTarget = cat.id">删除</button>

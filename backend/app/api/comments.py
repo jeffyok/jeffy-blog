@@ -35,12 +35,39 @@ async def create_comment(
         raise HTTPException(status_code=400, detail="Guest comments require nickname and email")
     comment = await CommentService.create_comment(db, article_id, data, user_id=current_user.id if current_user else None)
     # 返回组装后的评论数据
-    comments, _ = await CommentService.get_comments_with_user_info(db, article_id)
+    comments = await CommentService.get_comments_with_user_info(db, article_id)
     # 找到刚创建的评论
     for c in comments:
         if c["id"] == comment.id:
-            return c
-    return {"id": comment.id, "content": comment.content, "article_id": comment.article_id, "user_id": comment.user_id, "nickname": comment.nickname, "parent_id": comment.parent_id, "status": comment.status, "created_at": comment.created_at}
+            # 转换 user 字段，只保留必要的信息
+            result = {
+                "id": c["id"],
+                "content": c["content"],
+                "article_id": c["article_id"],
+                "user": None,
+                "nickname": c["nickname"],
+                "parent_id": c["parent_id"],
+                "status": c["status"],
+                "created_at": c["created_at"]
+            }
+            if c["user"]:
+                result["user"] = {
+                    "id": c["user"]["id"],
+                    "username": c["user"]["username"],
+                    "avatar": c["user"]["avatar"]
+                }
+            return result
+    # 如果没找到（比如评论状态不是 approved），返回基本的评论数据
+    return {
+        "id": comment.id,
+        "content": comment.content,
+        "article_id": comment.article_id,
+        "user": None,
+        "nickname": comment.nickname,
+        "parent_id": comment.parent_id,
+        "status": comment.status,
+        "created_at": comment.created_at
+    }
 
 
 # Admin endpoints

@@ -63,9 +63,16 @@ async function submitComment() {
       nickname: nickname.value || undefined,
       email: email.value || undefined,
     })
+    // 评论提交成功，清空表单
     content.value = ''
     replyTo.value = null
-    await loadComments()         // 重新加载评论列表
+    // 重新加载评论列表，失败不影响提交成功的提示
+    try {
+      await loadComments()
+    } catch (e) {
+      console.error('加载评论列表失败:', e)
+      // 评论已提交，但加载列表失败，不显示错误给用户，评论仍会在刷新后显示
+    }
   } catch (e) {
     console.error('提交评论失败:', e)
     submitError.value = '提交评论失败，请稍后重试'
