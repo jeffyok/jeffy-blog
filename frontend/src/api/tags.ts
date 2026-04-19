@@ -11,17 +11,22 @@ export function getTags() {
   return api.get<ArticleTag[]>('/tags/')
 }
 
+/** 管理后台获取所有标签列表 */
+export function adminGetTags() {
+  return api.get<ArticleTag[]>('/admin/tags/')
+}
+
 /** 创建标签 */
 export function createTag(data: TagCreate) {
-  return api.post<ArticleTag>('/tags/', data)
+  return api.post<ArticleTag>('/admin/tags/', data)
 }
 
 /** 更新标签 */
 export function updateTag(id: number, data: TagUpdate) {
-  return api.put<ArticleTag>(`/tags/${id}`, data)
+  return api.put<ArticleTag>(`/admin/tags/${id}`, data)
 }
 
 /** 删除标签 */
 export function deleteTag(id: number) {
-  return api.delete(`/tags/${id}`)
+  return api.delete(`/admin/tags/${id}`)
 }

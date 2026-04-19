@@ -49,28 +49,15 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# 注册所有 API 路由
-from app.api.auth import router as auth_router
-from app.api.articles import router as articles_router
-from app.api.categories import router as categories_router
-from app.api.tags import router as tags_router
-from app.api.comments import router as comments_router
-from app.api.likes import router as likes_router
-from app.api.friend_links import router as friend_links_router
-from app.api.archives import router as archives_router
-from app.api.feed import router as feed_router
-from app.api.admin import router as admin_router
+# 注册 C 端 API 路由
+from app.api.frontend import all_routers as frontend_routers
+for router in frontend_routers:
+    app.include_router(router)
 
-app.include_router(auth_router)
-app.include_router(articles_router)
-app.include_router(categories_router)
-app.include_router(tags_router)
-app.include_router(comments_router)
-app.include_router(likes_router)
-app.include_router(friend_links_router)
-app.include_router(archives_router)
-app.include_router(feed_router)
-app.include_router(admin_router)
+# 注册管理端 API 路由
+from app.api.admin import all_routers as admin_routers
+for router in admin_routers:
+    app.include_router(router)
 
 
 @app.get("/api/health")

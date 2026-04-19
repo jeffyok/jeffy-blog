@@ -2,7 +2,7 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
-import { getArticles, deleteArticle } from '@/api/articles'
+import { adminGetArticles, deleteArticle } from '@/api/articles'
 import type { ArticleListItem } from '@/types/article'
 import { formatDateTime } from '@/utils/format'
 import ConfirmDialog from '@/components/common/ConfirmDialog.vue'
@@ -35,7 +35,7 @@ async function loadArticles() {
     // 只有当明确选择了状态时才传递 status 参数，空字符串表示全部状态
     if (statusFilter.value !== '') params.status = statusFilter.value
     if (search.value) params.search = search.value
-    const { data } = await getArticles(params as Parameters<typeof getArticles>[0])
+    const { data } = await adminGetArticles(params as Parameters<typeof adminGetArticles>[0])
     articles.value = data.items
     total.value = data.total
   } finally {

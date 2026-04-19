@@ -1,5 +1,5 @@
 """
-RSS 订阅源 API 路由
+C 端 - RSS 订阅源 API 路由
 生成 RSS 2.0 格式的订阅源，包含最新 20 篇已发布文章
 """
 
@@ -13,19 +13,17 @@ from app.services.article_service import ArticleService
 router = APIRouter(prefix="/api/feed", tags=["feed"])
 
 
-@router.get("/rss")
+@router.get("/rss/")
 async def rss_feed(db: AsyncSession = Depends(get_db)):
     """生成 RSS 订阅源"""
     from feedgen.feed import FeedGenerator
 
-    # 初始化 Feed
     fg = FeedGenerator()
     fg.title("Jeffy Blog")
     fg.link(href=settings.SITE_URL, rel="alternate")
     fg.description("个人博客")
     fg.language("zh-CN")
 
-    # 取最新 20 篇已发布文章
     articles, _ = await ArticleService.get_articles(db, status="published", page=1, page_size=20)
     for article in articles:
         fe = fg.add_entry()

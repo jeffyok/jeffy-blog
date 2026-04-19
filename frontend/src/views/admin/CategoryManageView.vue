@@ -1,7 +1,7 @@
 <!-- 分类管理页面：CRUD 分类，支持新建/编辑/删除 -->
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
-import { getCategories, createCategory, updateCategory, deleteCategory } from '@/api/categories'
+import { adminGetCategories, createCategory, updateCategory, deleteCategory } from '@/api/categories'
 import type { Category } from '@/types/article'
 import ConfirmDialog from '@/components/common/ConfirmDialog.vue'
 
@@ -16,7 +16,7 @@ const deleteTarget = ref<number | null>(null)
 async function loadCategories() {
   loading.value = true
   try {
-    const { data } = await getCategories()
+    const { data } = await adminGetCategories()
     categories.value = data
   } finally {
     loading.value = false

@@ -11,17 +11,22 @@ export function getCategories() {
   return api.get<ArticleCategory[]>('/categories/')
 }
 
+/** 管理后台获取所有分类列表 */
+export function adminGetCategories() {
+  return api.get<ArticleCategory[]>('/admin/categories/')
+}
+
 /** 创建分类 */
 export function createCategory(data: CategoryCreate) {
-  return api.post<Category>('/categories/', data)
+  return api.post<Category>('/admin/categories/', data)
 }
 
 /** 更新分类 */
 export function updateCategory(id: number, data: CategoryUpdate) {
-  return api.put<Category>(`/categories/${id}`, data)
+  return api.put<Category>(`/admin/categories/${id}`, data)
 }
 
 /** 删除分类 */
 export function deleteCategory(id: number) {
-  return api.delete(`/categories/${id}`)
+  return api.delete(`/admin/categories/${id}`)
 }

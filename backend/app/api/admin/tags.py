@@ -1,6 +1,6 @@
 """
-标签相关 API 路由
-获取标签列表为公开接口，创建/更新/删除需管理员权限
+管理端 - 标签管理 API 路由
+标签的创建、更新、删除（需管理员权限）
 """
 
 from fastapi import APIRouter, Depends, HTTPException
@@ -14,12 +14,12 @@ from app.schemas.tag import TagCreate, TagUpdate
 from app.schemas.article import TagOut
 from app.services.tag_service import TagService
 
-router = APIRouter(prefix="/api/tags", tags=["tags"])
+router = APIRouter(prefix="/api/admin/tags", tags=["admin-tags"])
 
 
 @router.get("/", response_model=list[TagOut])
-async def list_tags(db: AsyncSession = Depends(get_db)):
-    """获取所有标签列表"""
+async def list_tags(db: AsyncSession = Depends(get_db), _=Depends(require_admin)):
+    """获取所有标签列表（需管理员权限）"""
     return await TagService.get_tags(db)
 
 

@@ -9,12 +9,12 @@ import type { UserPagination, UserUpdate, UserPasswordReset } from '@/types/user
 
 /** 获取后台仪表盘统计数据 */
 export function getDashboardStats() {
-  return api.get<DashboardStats>('/admin/dashboard')
+  return api.get<DashboardStats>('/admin/dashboard/')
 }
 
 /** 获取文章归档数据（按年月分组） */
 export function getArchives() {
-  return api.get<{ archives: ArchiveYear[] }>('/archives')
+  return api.get<{ archives: ArchiveYear[] }>('/archives/')
 }
 
 // ==================== 用户管理 ====================
@@ -27,7 +27,7 @@ export function adminGetUsers(params?: {
   role?: string
   is_active?: boolean
 }) {
-  return api.get<UserPagination>('/admin/users', { params })
+  return api.get<UserPagination>('/admin/users/', { params })
 }
 
 /** 更新用户角色/状态 */

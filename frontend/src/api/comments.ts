@@ -7,17 +7,17 @@ import type { Comment, CommentCreate } from '@/types/comment'
 
 /** 获取文章评论列表 */
 export function getComments(articleId: number) {
-  return api.get<Comment[]>(`/articles/${articleId}/comments`)
+  return api.get<Comment[]>(`/articles/${articleId}/comments/`)
 }
 
 /** 发表评论（支持匿名） */
 export function createComment(articleId: number, data: CommentCreate) {
-  return api.post<Comment>(`/articles/${articleId}/comments`, data)
+  return api.post<Comment>(`/articles/${articleId}/comments/`, data)
 }
 
 /** 管理员获取评论列表（分页，支持状态过滤） */
 export function adminGetComments(params?: { page?: number; page_size?: number; status?: string }) {
-  return api.get('/admin/comments', { params })
+  return api.get('/admin/comments/', { params })
 }
 
 /** 更新评论状态（approved/rejected） */

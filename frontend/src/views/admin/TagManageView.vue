@@ -1,7 +1,7 @@
 <!-- 标签管理页面：CRUD 标签，支持新建/编辑/删除 -->
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
-import { getTags, createTag, updateTag, deleteTag } from '@/api/tags'
+import { adminGetTags, createTag, updateTag, deleteTag } from '@/api/tags'
 import type { Tag } from '@/types/article'
 import ConfirmDialog from '@/components/common/ConfirmDialog.vue'
 
@@ -16,7 +16,7 @@ const deleteTarget = ref<number | null>(null)
 async function loadTags() {
   loading.value = true
   try {
-    const { data } = await getTags()
+    const { data } = await adminGetTags()
     tags.value = data
   } finally {
     loading.value = false

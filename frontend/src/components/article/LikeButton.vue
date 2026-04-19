@@ -19,7 +19,7 @@ onMounted(async () => {
   // 已登录时查询当前用户是否已点赞
   if (authStore.isLoggedIn) {
     try {
-      const { data } = await api.get(`/articles/${props.articleId}/liked`)
+      const { data } = await api.get(`/articles/${props.articleId}/liked/`)
       liked.value = data.liked
     } catch { /* ignore */ }
   }
@@ -32,7 +32,7 @@ async function toggleLike() {
     return
   }
   try {
-    const { data } = await api.post(`/articles/${props.articleId}/like`)
+    const { data } = await api.post(`/articles/${props.articleId}/like/`)
     liked.value = data.liked
     count.value += data.liked ? 1 : -1  // 根据返回状态增减计数
   } catch { /* ignore */ }

@@ -1,6 +1,6 @@
 """
-分类相关 API 路由
-获取分类列表为公开接口，创建/更新/删除需管理员权限
+管理端 - 分类管理 API 路由
+分类的创建、更新、删除（需管理员权限）
 """
 
 from fastapi import APIRouter, Depends, HTTPException
@@ -14,12 +14,12 @@ from app.schemas.category import CategoryCreate, CategoryUpdate
 from app.schemas.article import CategoryOut
 from app.services.category_service import CategoryService
 
-router = APIRouter(prefix="/api/categories", tags=["categories"])
+router = APIRouter(prefix="/api/admin/categories", tags=["admin-categories"])
 
 
 @router.get("/", response_model=list[CategoryOut])
-async def list_categories(db: AsyncSession = Depends(get_db)):
-    """获取所有分类列表"""
+async def list_categories(db: AsyncSession = Depends(get_db), _=Depends(require_admin)):
+    """获取所有分类列表（需管理员权限）"""
     return await CategoryService.get_categories(db)
 
 

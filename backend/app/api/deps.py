@@ -58,3 +58,25 @@ async def require_admin(current_user: User = Depends(get_current_user)) -> User:
     if current_user.role != "admin":
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Admin access required")
     return current_user
+
+
+async def get_optional_current_user(
+    credentials: HTTPAuthorizationCredentials | None = Depends(HTTPBearer(auto_error=False)),
+    db: AsyncSession = Depends(get_db),
+) -> User | None:
+    """
+    依赖：尝试从 JWT 令牌解析当前用户
+    无令牌或令牌无效时返回 None，不抛出异常
+    """
+    if credentials is None:
+        return None
+    try:
+        payload = decode_access_token(credentials.credentials)
+        user_id = payload.get("sub")
+        if user_id is None:
+            return None
+        user_id = int(user_id)
+    except Exception:
+        return None
+    user = await AuthService.get_user_by_id(db, user_id)
+    return user

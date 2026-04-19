@@ -1,5 +1,5 @@
 """
-点赞相关 API 路由
+C 端 - 点赞 API 路由
 点赞切换和查询当前用户是否已点赞（需登录）
 """
 
@@ -16,17 +16,13 @@ from app.services.like_service import LikeService
 router = APIRouter(prefix="/api", tags=["likes"])
 
 
-@router.post("/articles/{article_id}/like")
+@router.post("/articles/{article_id}/like/")
 async def toggle_like(
     article_id: int,
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
-    """
-    切换点赞状态
-    已点赞则取消，未点赞则点赞，同时更新文章点赞计数
-    """
-    # 验证文章是否存在
+    """切换点赞状态（已点赞则取消，未点赞则点赞）"""
     result = await db.execute(select(Article).where(Article.id == article_id))
     if not result.scalar_one_or_none():
         raise HTTPException(status_code=404, detail="Article not found")
@@ -34,7 +30,7 @@ async def toggle_like(
     return {"liked": liked}
 
 
-@router.get("/articles/{article_id}/liked")
+@router.get("/articles/{article_id}/liked/")
 async def check_liked(
     article_id: int,
     db: AsyncSession = Depends(get_db),
