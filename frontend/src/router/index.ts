@@ -36,6 +36,7 @@ const routes: RouteRecordRaw[] = [
       { path: 'categories', name: 'admin-categories', component: () => import('@/views/admin/CategoryManageView.vue') },
       { path: 'tags', name: 'admin-tags', component: () => import('@/views/admin/TagManageView.vue') },
       { path: 'comments', name: 'admin-comments', component: () => import('@/views/admin/CommentManageView.vue') },
+      { path: 'users', name: 'admin-users', component: () => import('@/views/admin/UserManageView.vue') },
     ],
   },
   // 404 兜底路由

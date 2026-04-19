@@ -16,6 +16,7 @@ const menuItems = [
   { name: '分类管理', path: '/admin/categories', icon: '📂' },
   { name: '标签管理', path: '/admin/tags', icon: '🏷️' },
   { name: '评论管理', path: '/admin/comments', icon: '💬' },
+  { name: '用户管理', path: '/admin/users', icon: '👥' },
 ]
 
 /** 判断菜单项是否激活 */
