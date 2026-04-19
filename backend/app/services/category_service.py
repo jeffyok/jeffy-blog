@@ -1,5 +1,7 @@
 """分类服务 - 处理分类的增删改查业务逻辑"""
 
+from datetime import datetime
+
 from fastapi import HTTPException
 from sqlalchemy import select, func
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -20,7 +22,7 @@ class CategoryService:
         existing = await db.execute(select(Category).where(Category.slug == slug))
         if existing.scalar_one_or_none():
             raise HTTPException(status_code=400, detail="Category slug already exists")
-        category = Category(name=data.name, slug=slug, description=data.description)
+        category = Category(name=data.name, slug=slug, description=data.description, created_at=datetime.now())
         db.add(category)
         await db.commit()
         await db.refresh(category)

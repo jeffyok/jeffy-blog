@@ -1,5 +1,7 @@
 """标签服务 - 处理标签的增删改查业务逻辑"""
 
+from datetime import datetime
+
 from fastapi import HTTPException
 from sqlalchemy import select, func
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -20,7 +22,7 @@ class TagService:
         existing = await db.execute(select(Tag).where(Tag.slug == slug))
         if existing.scalar_one_or_none():
             raise HTTPException(status_code=400, detail="Tag slug already exists")
-        tag = Tag(name=data.name, slug=slug)
+        tag = Tag(name=data.name, slug=slug, created_at=datetime.now())
         db.add(tag)
         await db.commit()
         await db.refresh(tag)
