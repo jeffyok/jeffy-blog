@@ -46,7 +46,9 @@ async function loadSidebar() {
       <div v-if="store.loading" class="loading"><span>加载中...</span></div>
       <div v-else-if="store.articles.length === 0" class="empty">暂无文章。</div>
       <template v-else>
-        <ArticleCard v-for="article in store.articles" :key="article.id" :article="article" />
+        <TransitionGroup name="card-list">
+          <ArticleCard v-for="article in store.articles" :key="article.id" :article="article" />
+        </TransitionGroup>
         <Pagination :total="store.total" :page="page" :page-size="pageSize" @update:page="page = $event" />
       </template>
     </div>
@@ -86,7 +88,7 @@ async function loadSidebar() {
 }
 
 .main-column > .article-card + .article-card {
-  margin-top: 16px;             // 文章卡片之间的间距
+  margin-top: 16px;
 }
 
 .sidebar {
@@ -104,6 +106,18 @@ async function loadSidebar() {
   margin-bottom: 12px;
   padding-bottom: 8px;
   border-bottom: 1px solid $border-light;
+  position: relative;
+
+  &::after {
+    content: '';
+    position: absolute;
+    bottom: -1px;
+    left: 0;
+    width: 40px;
+    height: 2px;
+    background: $gradient-primary;
+    border-radius: 1px;
+  }
 }
 
 .sidebar-list {
@@ -115,9 +129,15 @@ async function loadSidebar() {
     a {
       color: $text;
       font-size: 14px;
+      transition: all $transition-fast;
+      padding: 4px 8px;
+      border-radius: $radius-sm;
+      display: block;
 
       &:hover {
         color: $primary;
+        background: rgba(64, 158, 255, 0.06);
+        padding-left: 12px;
       }
     }
   }
@@ -127,6 +147,24 @@ async function loadSidebar() {
   display: flex;
   flex-wrap: wrap;
   gap: 8px;
+}
+
+// 卡片列表过渡
+.card-list-enter-active {
+  transition: all 0.4s $ease-out-back;
+}
+
+.card-list-leave-active {
+  transition: all 0.2s ease-in;
+}
+
+.card-list-enter-from {
+  opacity: 0;
+  transform: translateY(16px);
+}
+
+.card-list-leave-to {
+  opacity: 0;
 }
 
 // 移动端改为单列布局

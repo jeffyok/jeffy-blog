@@ -16,23 +16,18 @@ const page = ref(1)
 const pageSize = 20
 const loading = ref(true)
 
-// 过滤条件
 const search = ref('')
 const roleFilter = ref('')
 const statusFilter = ref('')
 
-// 编辑表单状态
 const editTarget = ref<User | null>(null)
-const editForm = ref({ role: 'user', is_active: true })
+const editForm = ref<{ role: 'admin' | 'user'; is_active: boolean }>({ role: 'user', is_active: true })
 
-// 重置密码表单状态
 const resetTarget = ref<User | null>(null)
 const resetForm = ref({ new_password: '' })
 
-// 删除确认
 const deleteTarget = ref<User | null>(null)
 
-/** 加载用户列表 */
 async function loadUsers() {
   loading.value = true
   try {
@@ -48,20 +43,17 @@ async function loadUsers() {
   }
 }
 
-/** 搜索 */
 function handleSearch() {
   page.value = 1
   loadUsers()
 }
 
-/** 打开编辑表单 */
 function openEdit(user: User) {
   editTarget.value = user
   editForm.value = { role: user.role, is_active: user.is_active }
   resetTarget.value = null
 }
 
-/** 提交编辑 */
 async function handleEdit() {
   if (!editTarget.value) return
   await adminUpdateUser(editTarget.value.id, editForm.value)
@@ -69,21 +61,18 @@ async function handleEdit() {
   await loadUsers()
 }
 
-/** 打开重置密码表单 */
 function openResetPassword(user: User) {
   resetTarget.value = user
   resetForm.value = { new_password: '' }
   editTarget.value = null
 }
 
-/** 提交重置密码 */
 async function handleResetPassword() {
   if (!resetTarget.value) return
   await adminResetPassword(resetTarget.value.id, resetForm.value)
   resetTarget.value = null
 }
 
-/** 确认删除 */
 async function handleDelete() {
   if (!deleteTarget.value) return
   await adminDeleteUser(deleteTarget.value.id)
@@ -91,17 +80,14 @@ async function handleDelete() {
   await loadUsers()
 }
 
-/** 角色标签文本 */
 function getRoleText(role: string) {
   return role === 'admin' ? '管理员' : '普通用户'
 }
 
-/** 状态标签文本 */
 function getStatusText(isActive: boolean) {
   return isActive ? '已激活' : '已禁用'
 }
 
-/** 是否为当前登录用户 */
 function isSelf(user: User) {
   return user.id === authStore.user?.id
 }
@@ -174,39 +160,41 @@ onMounted(loadUsers)
 
     <div v-if="loading" class="loading"><span>加载中...</span></div>
     <div v-else-if="users.length === 0" class="empty">未找到用户。</div>
-    <!-- 用户数据表格 -->
-    <table v-else class="data-table">
-      <thead>
-        <tr>
-          <th>用户名</th>
-          <th>邮箱</th>
-          <th>角色</th>
-          <th>状态</th>
-          <th>注册时间</th>
-          <th>操作</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr v-for="user in users" :key="user.id">
-          <td>{{ user.username }}</td>
-          <td>{{ user.email }}</td>
-          <td><span :class="['status-tag', user.role]">{{ getRoleText(user.role) }}</span></td>
-          <td><span :class="['status-tag', user.is_active ? 'active' : 'disabled']">{{ getStatusText(user.is_active) }}</span></td>
-          <td>{{ formatDateTime(user.created_at) }}</td>
-          <td class="actions">
-            <button class="btn btn-sm" @click="openEdit(user)">编辑</button>
-            <button class="btn btn-sm" @click="openResetPassword(user)">重置密码</button>
-            <button
-              v-if="!isSelf(user)"
-              class="btn btn-sm btn-danger"
-              @click="deleteTarget = user"
-            >删除</button>
-          </td>
-        </tr>
-      </tbody>
-    </table>
+    <template v-else>
+      <div class="table-wrapper">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>用户名</th>
+              <th>邮箱</th>
+              <th>角色</th>
+              <th>状态</th>
+              <th>注册时间</th>
+              <th>操作</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-for="user in users" :key="user.id">
+              <td>{{ user.username }}</td>
+              <td>{{ user.email }}</td>
+              <td><span :class="['status-tag', user.role]">{{ getRoleText(user.role) }}</span></td>
+              <td><span :class="['status-tag', user.is_active ? 'active' : 'disabled']">{{ getStatusText(user.is_active) }}</span></td>
+              <td>{{ formatDateTime(user.created_at) }}</td>
+              <td class="actions">
+                <button class="btn btn-sm" @click="openEdit(user)">编辑</button>
+                <button class="btn btn-sm" @click="openResetPassword(user)">重置密码</button>
+                <button
+                  v-if="!isSelf(user)"
+                  class="btn btn-sm btn-danger"
+                  @click="deleteTarget = user"
+                >删除</button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </template>
 
-    <!-- 删除确认对话框 -->
     <ConfirmDialog
       :visible="deleteTarget !== null"
       title="删除用户"
@@ -215,7 +203,6 @@ onMounted(loadUsers)
       @cancel="deleteTarget = null"
     />
 
-    <!-- 分页 -->
     <Pagination
       v-if="!loading && users.length > 0"
       :total="total"
@@ -244,29 +231,41 @@ onMounted(loadUsers)
   margin-bottom: 16px;
   flex-wrap: wrap;
 
-  .search-input {
-    padding: 8px 12px;
+  .search-input, select {
+    padding: 8px 14px;
     border: 1px solid $border;
-    border-radius: 4px;
+    border-radius: $radius-sm;
     font-size: 14px;
     outline: none;
-    min-width: 200px;
+    background: $bg-white;
+    transition: all $transition-normal;
+
+    &:focus {
+      border-color: $primary;
+      box-shadow: 0 0 0 3px rgba(64, 158, 255, 0.15);
+    }
   }
 
-  select {
-    padding: 8px 12px;
-    border: 1px solid $border;
-    border-radius: 4px;
-    font-size: 14px;
-    outline: none;
-  }
+  .search-input { min-width: 200px; }
 }
 
 .form-card {
   margin-bottom: 16px;
-  padding: 20px;
+  padding: 24px;
+  position: relative;
+  overflow: hidden;
 
-  h3 { margin-bottom: 16px; }
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: $gradient-primary;
+  }
+
+  h3 { margin-bottom: 16px; font-weight: 600; }
 }
 
 .form-group {
@@ -283,11 +282,17 @@ onMounted(loadUsers)
   input, select {
     width: 100%;
     max-width: 400px;
-    padding: 8px 12px;
+    padding: 10px 14px;
     border: 1px solid $border;
-    border-radius: 4px;
+    border-radius: $radius-sm;
     font-size: 14px;
     outline: none;
+    transition: all $transition-normal;
+
+    &:focus {
+      border-color: $primary;
+      box-shadow: 0 0 0 3px rgba(64, 158, 255, 0.15);
+    }
   }
 }
 
@@ -297,13 +302,17 @@ onMounted(loadUsers)
   gap: 8px;
 }
 
+.table-wrapper {
+  border-radius: $radius-lg;
+  overflow: hidden;
+  box-shadow: $shadow-md;
+  border: 1px solid $glass-border;
+}
+
 .data-table {
   width: 100%;
   border-collapse: collapse;
   background: $bg-white;
-  border-radius: 8px;
-  overflow: hidden;
-  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.05);
 
   th, td {
     padding: 12px 16px;
@@ -312,19 +321,33 @@ onMounted(loadUsers)
     font-size: 14px;
   }
 
-  th { background: $bg; font-weight: 600; }
+  th {
+    background: $gradient-primary;
+    color: #fff;
+    font-weight: 600;
+    font-size: 13px;
+  }
+
+  tbody tr {
+    transition: background $transition-fast;
+
+    &:hover {
+      background: rgba(64, 158, 255, 0.04);
+    }
+  }
+
   .actions { display: flex; gap: 4px; white-space: nowrap; }
 }
 
 .status-tag {
-  padding: 2px 8px;
-  border-radius: 4px;
+  padding: 3px 10px;
+  border-radius: $radius-xl;
   font-size: 12px;
   display: inline-block;
 
-  &.admin { background: #ecf5ff; color: $primary; }
-  &.user { background: $bg; color: $text-secondary; }
-  &.active { background: #f0f9eb; color: $success; }
-  &.disabled { background: #fef0f0; color: $danger; }
+  &.admin { background: rgba(64, 158, 255, 0.1); color: $primary; }
+  &.user { background: rgba(144, 147, 153, 0.1); color: $text-secondary; }
+  &.active { background: rgba(103, 194, 58, 0.1); color: $success; }
+  &.disabled { background: rgba(245, 108, 108, 0.1); color: $danger; }
 }
 </style>

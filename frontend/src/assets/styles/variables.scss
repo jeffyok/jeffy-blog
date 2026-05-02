@@ -8,6 +8,19 @@ $primary: #409eff;
 $primary-light: #66b1ff;
 $primary-dark: #3a8ee6;
 
+// 渐变色
+$gradient-primary: linear-gradient(135deg, #409eff 0%, #667eea 100%);
+$gradient-header: linear-gradient(135deg, rgba(255,255,255,0.85) 0%, rgba(255,255,255,0.72) 100%);
+$gradient-card-border: linear-gradient(135deg, rgba(64,158,255,0.3) 0%, rgba(102,126,234,0.3) 100%);
+$gradient-danger: linear-gradient(135deg, #f56c6c 0%, #e6475b 100%);
+$gradient-success: linear-gradient(135deg, #67c23a 0%, #52b71e 100%);
+
+// 玻璃拟态
+$glass-bg: rgba(255, 255, 255, 0.72);
+$glass-blur: 20px;
+$glass-border: rgba(255, 255, 255, 0.3);
+$glass-card-bg: rgba(255, 255, 255, 0.6);
+
 // 文字色
 $text: #303133;
 $text-secondary: #909399;
@@ -25,6 +38,25 @@ $border-light: #e4e7ed;
 $danger: #f56c6c;
 $success: #67c23a;
 $warning: #e6a23c;
+
+// 阴影
+$shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.04);
+$shadow-md: 0 4px 16px rgba(0, 0, 0, 0.08);
+$shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.12);
+$shadow-xl: 0 12px 48px rgba(0, 0, 0, 0.16);
+
+// 圆角
+$radius-sm: 8px;
+$radius-md: 12px;
+$radius-lg: 16px;
+$radius-xl: 24px;
+
+// 动画
+$transition-fast: 0.2s ease;
+$transition-normal: 0.3s ease;
+$transition-slow: 0.5s ease;
+$ease-out-back: cubic-bezier(0.34, 1.56, 0.64, 1);
+$ease-smooth: cubic-bezier(0.4, 0, 0.2, 1);
 
 // 布局尺寸
 $max-width: 1200px;              // 内容最大宽度

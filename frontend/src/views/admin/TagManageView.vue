@@ -8,11 +8,10 @@ import ConfirmDialog from '@/components/common/ConfirmDialog.vue'
 const tags = ref<Tag[]>([])
 const loading = ref(true)
 const showForm = ref(false)
-const editingId = ref<number | null>(null)  // 正在编辑的标签 ID，null 表示新建
+const editingId = ref<number | null>(null)
 const form = ref({ name: '', slug: '' })
 const deleteTarget = ref<number | null>(null)
 
-/** 加载标签列表 */
 async function loadTags() {
   loading.value = true
   try {
@@ -23,21 +22,18 @@ async function loadTags() {
   }
 }
 
-/** 打开新建表单 */
 function openCreate() {
   editingId.value = null
   form.value = { name: '', slug: '' }
   showForm.value = true
 }
 
-/** 打开编辑表单，填充已有数据 */
 function openEdit(tag: Tag) {
   editingId.value = tag.id
   form.value = { name: tag.name, slug: tag.slug }
   showForm.value = true
 }
 
-/** 提交表单（新建或更新） */
 async function handleSubmit() {
   if (editingId.value) {
     await updateTag(editingId.value, form.value)
@@ -48,7 +44,6 @@ async function handleSubmit() {
   await loadTags()
 }
 
-/** 确认删除标签 */
 async function handleDelete() {
   if (!deleteTarget.value) return
   await deleteTag(deleteTarget.value)
@@ -84,30 +79,32 @@ onMounted(loadTags)
     </div>
 
     <div v-if="loading" class="loading"><span>加载中...</span></div>
-    <!-- 标签数据表格 -->
-    <table v-else class="data-table">
-      <thead>
-        <tr>
-          <th>名称</th>
-          <th>别名</th>
-          <th>创建时间</th>
-          <th>操作</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr v-for="tag in tags" :key="tag.id">
-          <td>{{ tag.name }}</td>
-          <td>{{ tag.slug }}</td>
-          <td>{{ new Date(tag.created_at).toLocaleString('zh-CN') }}</td>
-          <td class="actions">
-            <button class="btn btn-sm" @click="openEdit(tag)">编辑</button>
-            <button class="btn btn-sm btn-danger" @click="deleteTarget = tag.id">删除</button>
-          </td>
-        </tr>
-      </tbody>
-    </table>
+    <template v-else>
+      <div class="table-wrapper">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>名称</th>
+              <th>别名</th>
+              <th>创建时间</th>
+              <th>操作</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-for="tag in tags" :key="tag.id">
+              <td>{{ tag.name }}</td>
+              <td>{{ tag.slug }}</td>
+              <td>{{ new Date(tag.created_at).toLocaleString('zh-CN') }}</td>
+              <td class="actions">
+                <button class="btn btn-sm" @click="openEdit(tag)">编辑</button>
+                <button class="btn btn-sm btn-danger" @click="deleteTarget = tag.id">删除</button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </template>
 
-    <!-- 删除确认对话框 -->
     <ConfirmDialog
       :visible="deleteTarget !== null"
       title="删除标签"
@@ -132,9 +129,21 @@ onMounted(loadTags)
 
 .form-card {
   margin-bottom: 16px;
-  padding: 20px;
+  padding: 24px;
+  position: relative;
+  overflow: hidden;
 
-  h3 { margin-bottom: 16px; }
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: $gradient-primary;
+  }
+
+  h3 { margin-bottom: 16px; font-weight: 600; }
 }
 
 .form-actions {
@@ -143,13 +152,17 @@ onMounted(loadTags)
   gap: 8px;
 }
 
+.table-wrapper {
+  border-radius: $radius-lg;
+  overflow: hidden;
+  box-shadow: $shadow-md;
+  border: 1px solid $glass-border;
+}
+
 .data-table {
   width: 100%;
   border-collapse: collapse;
   background: $bg-white;
-  border-radius: 8px;
-  overflow: hidden;
-  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.05);
 
   th, td {
     padding: 12px 16px;
@@ -158,7 +171,21 @@ onMounted(loadTags)
     font-size: 14px;
   }
 
-  th { background: $bg; font-weight: 600; }
+  th {
+    background: $gradient-primary;
+    color: #fff;
+    font-weight: 600;
+    font-size: 13px;
+  }
+
+  tbody tr {
+    transition: background $transition-fast;
+
+    &:hover {
+      background: rgba(64, 158, 255, 0.04);
+    }
+  }
+
   .actions { display: flex; gap: 4px; }
 }
 </style>

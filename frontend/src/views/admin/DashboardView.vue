@@ -15,6 +15,18 @@ onMounted(async () => {
     loading.value = false
   }
 })
+
+// 每个卡片不同的渐变色
+const cardGradients = [
+  'linear-gradient(135deg, #409eff, #667eea)',
+  'linear-gradient(135deg, #67c23a, #52b71e)',
+  'linear-gradient(135deg, #e6a23c, #f5a623)',
+  'linear-gradient(135deg, #667eea, #764ba2)',
+  'linear-gradient(135deg, #f56c6c, #e6475b)',
+  'linear-gradient(135deg, #409eff, #36d1dc)',
+  'linear-gradient(135deg, #52b71e, #36d1dc)',
+  'linear-gradient(135deg, #e6a23c, #f56c6c)',
+]
 </script>
 
 <template>
@@ -24,37 +36,23 @@ onMounted(async () => {
     <template v-else-if="stats">
       <!-- 统计卡片网格 -->
       <div class="stats-grid">
-        <div class="card stat-card">
-          <div class="stat-value">{{ stats.total_articles }}</div>
-          <div class="stat-label">文章总数</div>
-        </div>
-        <div class="card stat-card">
-          <div class="stat-value">{{ stats.published_articles }}</div>
-          <div class="stat-label">已发布</div>
-        </div>
-        <div class="card stat-card">
-          <div class="stat-value">{{ stats.draft_articles }}</div>
-          <div class="stat-label">草稿</div>
-        </div>
-        <div class="card stat-card">
-          <div class="stat-value">{{ stats.total_comments }}</div>
-          <div class="stat-label">评论数</div>
-        </div>
-        <div class="card stat-card">
-          <div class="stat-value">{{ stats.total_views }}</div>
-          <div class="stat-label">总浏览</div>
-        </div>
-        <div class="card stat-card">
-          <div class="stat-value">{{ stats.total_likes }}</div>
-          <div class="stat-label">总点赞</div>
-        </div>
-        <div class="card stat-card">
-          <div class="stat-value">{{ stats.total_users }}</div>
-          <div class="stat-label">用户数</div>
-        </div>
-        <div class="card stat-card">
-          <div class="stat-value">{{ stats.pending_comments }}</div>
-          <div class="stat-label">待审核评论</div>
+        <div
+          v-for="(item, index) in [
+            { value: stats.total_articles, label: '文章总数' },
+            { value: stats.published_articles, label: '已发布' },
+            { value: stats.draft_articles, label: '草稿' },
+            { value: stats.total_comments, label: '评论数' },
+            { value: stats.total_views, label: '总浏览' },
+            { value: stats.total_likes, label: '总点赞' },
+            { value: stats.total_users, label: '用户数' },
+            { value: stats.pending_comments, label: '待审核评论' },
+          ]"
+          :key="item.label"
+          class="card stat-card"
+        >
+          <div class="stat-decoration" :style="{ background: cardGradients[index] }"></div>
+          <div class="stat-value">{{ item.value }}</div>
+          <div class="stat-label">{{ item.label }}</div>
         </div>
       </div>
     </template>
@@ -66,19 +64,38 @@ onMounted(async () => {
 
 .stats-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); // 自适应列数
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
   gap: 16px;
 }
 
 .stat-card {
   text-align: center;
-  padding: 24px;
+  padding: 24px 20px;
+  position: relative;
+  overflow: hidden;
+  transition: all $transition-normal;
+
+  &:hover {
+    transform: translateY(-4px);
+    box-shadow: $shadow-lg;
+  }
+}
+
+.stat-decoration {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
 }
 
 .stat-value {
   font-size: 32px;
   font-weight: 700;
-  color: $primary;
+  background: $gradient-primary;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
 }
 
 .stat-label {

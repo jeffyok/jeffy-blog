@@ -1,6 +1,6 @@
 <!-- 文章详情页：文章内容 + 目录侧边栏 + 评论区 -->
 <script setup lang="ts">
-import { ref, onMounted, computed, nextTick, watch } from 'vue'
+import { ref, onMounted, nextTick, watch } from 'vue'
 import { useRoute } from 'vue-router'
 import { getArticle } from '@/api/articles'
 import type { Article } from '@/types/article'
@@ -29,7 +29,7 @@ async function loadArticle() {
   try {
     const { data } = await getArticle(route.params.slug as string)
     article.value = data
-    await nextTick()              // 等待 DOM 渲染完成后再提取标题
+    await nextTick()
     extractToc()
   } catch {
     article.value = null
@@ -46,12 +46,17 @@ function extractToc() {
   tocHeadings.value = Array.from(headings).map((el) => ({
     id: el.id || '',
     text: el.textContent || '',
-    level: parseInt(el.tagName[1]),  // 2 或 3
+    level: parseInt(el.tagName[1]),
   }))
   if (tocHeadings.value.length > 0 && !activeTocId.value) {
     activeTocId.value = tocHeadings.value[0].id
   }
   setupScrollSpy()
+}
+
+/** 滚动到指定标题 */
+function scrollToHeading(id: string) {
+  document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' })
 }
 
 /** 使用 IntersectionObserver 监听滚动，高亮当前可见的目录项 */
@@ -119,7 +124,7 @@ function setupScrollSpy() {
               :key="heading.id"
               :href="`#${heading.id}`"
               :class="['toc-item', `level-${heading.level}`, { active: activeTocId === heading.id }]"
-              @click.prevent="document.getElementById(heading.id)?.scrollIntoView({ behavior: 'smooth' })"
+              @click.prevent="scrollToHeading(heading.id)"
             >
               {{ heading.text }}
             </a>
@@ -147,6 +152,19 @@ function setupScrollSpy() {
 
 .article-content {
   padding: 32px;
+  position: relative;
+  overflow: hidden;
+
+  // 顶部渐变装饰条
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: $gradient-primary;
+  }
 }
 
 .article-header {
@@ -159,14 +177,28 @@ function setupScrollSpy() {
 .article-title {
   font-size: 28px;
   margin: 0;
+  position: relative;
+  padding-bottom: 16px;
+
+  // 标题下方渐变分割线
+  &::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 60px;
+    height: 3px;
+    border-radius: 2px;
+    background: $gradient-primary;
+  }
 }
 
 .top-tag {
-  padding: 2px 8px;
-  background: $primary;
+  padding: 3px 10px;
+  background: $gradient-primary;
   color: #fff;
   font-size: 12px;
-  border-radius: 4px;
+  border-radius: $radius-xl;
   white-space: nowrap;
 }
 
@@ -186,6 +218,17 @@ function setupScrollSpy() {
   margin-top: 24px;
   padding-top: 24px;
   border-top: 1px solid $border-light;
+  position: relative;
+
+  &::before {
+    content: '';
+    position: absolute;
+    top: -1px;
+    left: 0;
+    width: 60px;
+    height: 2px;
+    background: $gradient-card-border;
+  }
 }
 
 // 目录侧边栏：固定定位，跟随滚动
@@ -203,35 +246,52 @@ function setupScrollSpy() {
   font-size: 16px;
   font-weight: 600;
   margin-bottom: 12px;
+  padding-left: 12px;
+  position: relative;
+
+  &::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 3px;
+    height: 16px;
+    border-radius: 2px;
+    background: $gradient-primary;
+  }
 }
 
 .toc-list {
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 2px;
 }
 
 .toc-item {
   display: block;
-  padding: 4px 8px;
+  padding: 6px 12px;
   font-size: 14px;
   color: $text-secondary;
   text-decoration: none;
   border-left: 2px solid transparent;
-  transition: all 0.2s;
+  border-radius: 0 $radius-sm $radius-sm 0;
+  transition: all $transition-fast;
 
   &:hover {
     color: $primary;
+    background: rgba(64, 158, 255, 0.04);
   }
 
   &.level-3 {
-    padding-left: 20px;          // h3 目录项缩进
+    padding-left: 24px;
   }
 
   &.active {
     color: $primary;
-    border-left-color: $primary; // 激活态左侧指示条
-    background: #ecf5ff;
+    border-left-color: $primary;
+    background: rgba(64, 158, 255, 0.08);
+    font-weight: 500;
   }
 }
 

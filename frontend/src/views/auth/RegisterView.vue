@@ -23,7 +23,6 @@ async function handleRegister() {
   loading.value = true
   try {
     await authStore.register(username.value, email.value, password.value)
-    // 注册成功后自动登录
     await authStore.login(username.value, password.value)
     router.push('/')
   } catch (e: unknown) {
@@ -38,6 +37,10 @@ async function handleRegister() {
 
 <template>
   <div class="auth-page">
+    <!-- 装饰渐变圆 -->
+    <div class="deco-circle deco-1"></div>
+    <div class="deco-circle deco-2"></div>
+
     <div class="card auth-form">
       <h1 class="auth-title">注册</h1>
       <!-- 错误提示 -->
@@ -59,7 +62,7 @@ async function handleRegister() {
           <label>确认密码</label>
           <input v-model="confirmPassword" type="password" required />
         </div>
-        <button type="submit" class="btn btn-primary" style="width: 100%;" :disabled="loading">
+        <button type="submit" class="btn btn-primary auth-btn" :disabled="loading">
           {{ loading ? '注册中...' : '注册' }}
         </button>
       </form>
@@ -77,33 +80,100 @@ async function handleRegister() {
   display: flex;
   justify-content: center;
   padding: 40px 0;
+  position: relative;
+  overflow: hidden;
+  min-height: 60vh;
+}
+
+.deco-circle {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(80px);
+  opacity: 0.4;
+  pointer-events: none;
+
+  &.deco-1 {
+    width: 300px;
+    height: 300px;
+    background: rgba(64, 158, 255, 0.3);
+    top: -50px;
+    left: -50px;
+  }
+
+  &.deco-2 {
+    width: 250px;
+    height: 250px;
+    background: rgba(103, 194, 58, 0.2);
+    bottom: -30px;
+    right: -30px;
+  }
 }
 
 .auth-form {
   width: 100%;
-  max-width: 400px;
-  padding: 32px;
+  max-width: 420px;
+  padding: 36px;
+  background: rgba(255, 255, 255, 0.75);
+  backdrop-filter: blur(30px);
+  -webkit-backdrop-filter: blur(30px);
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  position: relative;
+  z-index: 1;
+
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: $gradient-primary;
+    border-radius: $radius-lg $radius-lg 0 0;
+  }
 }
 
 .auth-title {
   font-size: 24px;
   text-align: center;
-  margin-bottom: 24px;
+  margin-bottom: 28px;
+  font-weight: 700;
+  background: $gradient-primary;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
 }
 
 .auth-error {
-  background: #fef0f0;
+  background: rgba(245, 108, 108, 0.08);
   color: $danger;
-  padding: 8px 12px;
-  border-radius: 4px;
+  padding: 10px 14px;
+  border-radius: $radius-sm;
   margin-bottom: 16px;
   font-size: 14px;
+  border-left: 3px solid $danger;
+}
+
+.auth-btn {
+  width: 100%;
+  padding: 12px;
+  font-size: 15px;
+  font-weight: 600;
+  border-radius: $radius-md;
 }
 
 .auth-link {
   text-align: center;
-  margin-top: 16px;
+  margin-top: 20px;
   font-size: 14px;
   color: $text-secondary;
+
+  a {
+    color: $primary;
+    font-weight: 500;
+
+    &:hover {
+      text-decoration: underline;
+    }
+  }
 }
 </style>

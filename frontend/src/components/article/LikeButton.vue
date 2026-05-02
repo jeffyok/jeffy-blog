@@ -6,8 +6,8 @@ import { useAuthStore } from '@/stores/auth'
 import api from '@/api'
 
 const props = defineProps<{
-  articleId: number    // 文章 ID
-  likeCount: number    // 初始点赞数
+  articleId: number
+  likeCount: number
 }>()
 
 const router = useRouter()
@@ -16,7 +16,6 @@ const liked = ref(false)
 const count = ref(props.likeCount)
 
 onMounted(async () => {
-  // 已登录时查询当前用户是否已点赞
   if (authStore.isLoggedIn) {
     try {
       const { data } = await api.get(`/articles/${props.articleId}/liked/`)
@@ -34,14 +33,15 @@ async function toggleLike() {
   try {
     const { data } = await api.post(`/articles/${props.articleId}/like/`)
     liked.value = data.liked
-    count.value += data.liked ? 1 : -1  // 根据返回状态增减计数
+    count.value += data.liked ? 1 : -1
   } catch { /* ignore */ }
 }
 </script>
 
 <template>
   <button class="like-btn" :class="{ liked }" @click="toggleLike">
-    {{ liked ? '❤️' : '🤍' }} {{ count }}
+    <span class="like-icon">{{ liked ? '❤️' : '🤍' }}</span>
+    {{ count }}
   </button>
 </template>
 
@@ -52,21 +52,41 @@ async function toggleLike() {
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  padding: 8px 16px;
+  padding: 8px 20px;
   border: 1px solid $border;
-  border-radius: 20px;
-  background: $bg-white;
+  border-radius: $radius-xl;
+  background: $glass-bg;
+  backdrop-filter: blur(8px);
   cursor: pointer;
   font-size: 14px;
-  transition: all 0.2s;
+  transition: all $transition-normal;
 
   &:hover {
     border-color: $danger;
+    box-shadow: $shadow-sm;
+
+    .like-icon {
+      animation: heartbeat 0.6s ease-in-out;
+    }
   }
 
   &.liked {
     border-color: $danger;
-    background: #fef0f0;         // 已点赞时浅红背景
+    background: linear-gradient(135deg, rgba(245, 108, 108, 0.08) 0%, rgba(230, 71, 91, 0.08) 100%);
+    color: $danger;
+    box-shadow: 0 2px 8px rgba(245, 108, 108, 0.2);
   }
+}
+
+.like-icon {
+  display: inline-block;
+}
+
+@keyframes heartbeat {
+  0% { transform: scale(1); }
+  25% { transform: scale(1.3); }
+  50% { transform: scale(1); }
+  75% { transform: scale(1.15); }
+  100% { transform: scale(1); }
 }
 </style>

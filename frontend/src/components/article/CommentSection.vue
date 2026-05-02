@@ -1,7 +1,6 @@
 <!-- 评论区组件：展示评论列表、发表评论、支持嵌套回复 -->
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
-import { useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
 import { getComments, createComment } from '@/api/comments'
 import type { Comment } from '@/types/comment'
@@ -11,18 +10,17 @@ const props = defineProps<{
   articleId: number
 }>()
 
-const router = useRouter()
 const authStore = useAuthStore()
 const comments = ref<Comment[]>([])
 const loading = ref(false)
 const submitting = ref(false)
-const submitError = ref('')  // 添加错误提示
+const submitError = ref('')
 
 // 评论表单字段
 const content = ref('')
 const nickname = ref('')
 const email = ref('')
-const replyTo = ref<number | null>(null)   // 正在回复的评论 ID
+const replyTo = ref<number | null>(null)
 
 onMounted(loadComments)
 
@@ -63,15 +61,12 @@ async function submitComment() {
       nickname: nickname.value || undefined,
       email: email.value || undefined,
     })
-    // 评论提交成功，清空表单
     content.value = ''
     replyTo.value = null
-    // 重新加载评论列表，失败不影响提交成功的提示
     try {
       await loadComments()
     } catch (e) {
       console.error('加载评论列表失败:', e)
-      // 评论已提交，但加载列表失败，不显示错误给用户，评论仍会在刷新后显示
     }
   } catch (e) {
     console.error('提交评论失败:', e)
@@ -115,12 +110,15 @@ async function submitComment() {
     <!-- 评论列表 -->
     <div v-else class="comment-list">
       <div v-for="comment in comments" :key="comment.id" class="comment-item">
-        <div class="comment-header">
-          <span class="comment-author">{{ comment.user?.username || comment.nickname || '游客' }}</span>
-          <span class="comment-date">{{ formatDateTime(comment.created_at) }}</span>
+        <div class="comment-avatar">{{ (comment.user?.username || comment.nickname || '游')[0] }}</div>
+        <div class="comment-body-wrap">
+          <div class="comment-header">
+            <span class="comment-author">{{ comment.user?.username || comment.nickname || '游客' }}</span>
+            <span class="comment-date">{{ formatDateTime(comment.created_at) }}</span>
+          </div>
+          <div class="comment-body">{{ comment.content }}</div>
+          <button class="reply-btn" @click="setReply(comment.id)">回复</button>
         </div>
-        <div class="comment-body">{{ comment.content }}</div>
-        <button class="btn btn-sm reply-btn" @click="setReply(comment.id)">回复</button>
       </div>
     </div>
   </div>
@@ -136,6 +134,21 @@ async function submitComment() {
 .section-title {
   font-size: 20px;
   margin-bottom: 16px;
+  font-weight: 600;
+  padding-left: 16px;
+  position: relative;
+
+  &::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 4px;
+    height: 20px;
+    border-radius: 2px;
+    background: $gradient-primary;
+  }
 }
 
 .comment-form {
@@ -143,16 +156,19 @@ async function submitComment() {
 
   textarea {
     width: 100%;
-    padding: 12px;
+    padding: 12px 16px;
     border: 1px solid $border;
-    border-radius: 4px;
+    border-radius: $radius-sm;
     font-size: 14px;
     resize: vertical;
     margin-bottom: 8px;
     outline: none;
+    transition: all $transition-normal;
+    background: $bg-white;
 
     &:focus {
       border-color: $primary;
+      box-shadow: 0 0 0 3px rgba(64, 158, 255, 0.15);
     }
   }
 }
@@ -161,12 +177,13 @@ async function submitComment() {
   display: flex;
   align-items: center;
   gap: 8px;
-  padding: 8px;
-  background: #ecf5ff;
-  border-radius: 4px;
+  padding: 8px 12px;
+  background: rgba(64, 158, 255, 0.06);
+  border-radius: $radius-sm;
   margin-bottom: 8px;
   font-size: 13px;
   color: $primary;
+  border-left: 3px solid $primary;
 }
 
 .guest-fields {
@@ -176,14 +193,16 @@ async function submitComment() {
 
   input {
     flex: 1;
-    padding: 8px 12px;
+    padding: 10px 14px;
     border: 1px solid $border;
-    border-radius: 4px;
+    border-radius: $radius-sm;
     font-size: 14px;
     outline: none;
+    transition: all $transition-normal;
 
     &:focus {
       border-color: $primary;
+      box-shadow: 0 0 0 3px rgba(64, 158, 255, 0.15);
     }
   }
 }
@@ -191,36 +210,65 @@ async function submitComment() {
 .form-actions {
   display: flex;
   justify-content: flex-end;
+  align-items: center;
   gap: 12px;
 }
 
 .submit-error {
-  color: #f56c6c;
+  color: $danger;
   font-size: 13px;
 }
 
 .comment-list {
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 12px;
 }
 
 .comment-item {
+  display: flex;
+  gap: 12px;
   padding: 16px;
-  border-radius: 8px;
-  background: $bg-white;
-  border: 1px solid $border-light;
+  border-radius: $radius-md;
+  background: $glass-card-bg;
+  backdrop-filter: blur(8px);
+  border: 1px solid $glass-border;
+  transition: all $transition-normal;
+
+  &:hover {
+    border-color: rgba(64, 158, 255, 0.15);
+    box-shadow: $shadow-sm;
+  }
 
   &.reply {
-    margin-left: 24px;          // 回复项缩进
-    background: $bg;
+    margin-left: 48px;
+    background: rgba(245, 247, 250, 0.6);
   }
+}
+
+.comment-avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: $gradient-primary;
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  font-weight: 600;
+  flex-shrink: 0;
+}
+
+.comment-body-wrap {
+  flex: 1;
+  min-width: 0;
 }
 
 .comment-header {
   display: flex;
   gap: 12px;
-  margin-bottom: 8px;
+  margin-bottom: 6px;
   font-size: 13px;
 }
 
@@ -237,9 +285,22 @@ async function submitComment() {
   color: $text;
   line-height: 1.6;
   margin-bottom: 8px;
+  font-size: 14px;
 }
 
 .reply-btn {
+  background: none;
+  border: none;
+  color: $text-secondary;
   font-size: 12px;
+  cursor: pointer;
+  padding: 2px 8px;
+  border-radius: $radius-sm;
+  transition: all $transition-fast;
+
+  &:hover {
+    color: $primary;
+    background: rgba(64, 158, 255, 0.06);
+  }
 }
 </style>

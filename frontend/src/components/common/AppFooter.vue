@@ -11,11 +11,24 @@
 @use '@/assets/styles/variables' as *;
 
 .app-footer {
-  background: $bg-white;
-  border-top: 1px solid $border-light;
+  background: $glass-bg;
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
   padding: 20px 0;
   text-align: center;
   color: $text-secondary;
   font-size: 14px;
+  position: relative;
+
+  // 顶部渐变分割线
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 1px;
+    background: $gradient-card-border;
+  }
 }
 </style>

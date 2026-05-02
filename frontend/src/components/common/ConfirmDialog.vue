@@ -15,16 +15,18 @@ const emit = defineEmits<{
 <template>
   <Teleport to="body">
     <!-- 点击遮罩层可取消 -->
-    <div v-if="visible" class="confirm-overlay" @click.self="emit('cancel')">
-      <div class="confirm-dialog">
-        <h3 class="confirm-title">{{ title }}</h3>
-        <p class="confirm-message">{{ message }}</p>
-        <div class="confirm-actions">
-          <button class="btn" @click="emit('cancel')">Cancel</button>
-          <button class="btn btn-danger" @click="emit('confirm')">Confirm</button>
+    <Transition name="dialog">
+      <div v-if="visible" class="confirm-overlay" @click.self="emit('cancel')">
+        <div class="confirm-dialog">
+          <h3 class="confirm-title">{{ title }}</h3>
+          <p class="confirm-message">{{ message }}</p>
+          <div class="confirm-actions">
+            <button class="btn" @click="emit('cancel')">取消</button>
+            <button class="btn btn-danger" @click="emit('confirm')">确认</button>
+          </div>
         </div>
       </div>
-    </div>
+    </Transition>
   </Teleport>
 </template>
 
@@ -34,7 +36,8 @@ const emit = defineEmits<{
 .confirm-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, 0.5); // 半透明遮罩
+  background: rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(4px);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -43,25 +46,64 @@ const emit = defineEmits<{
 
 .confirm-dialog {
   background: $bg-white;
-  border-radius: 8px;
-  padding: 24px;
+  border-radius: $radius-lg;
+  padding: 28px;
   max-width: 400px;
   width: 90%;
+  box-shadow: $shadow-xl;
 }
 
 .confirm-title {
   font-size: 18px;
   margin-bottom: 12px;
+  font-weight: 600;
 }
 
 .confirm-message {
   color: $text-secondary;
   margin-bottom: 24px;
+  line-height: 1.6;
 }
 
 .confirm-actions {
   display: flex;
   justify-content: flex-end;
   gap: 8px;
+}
+
+// 弹窗过渡动画
+.dialog-enter-active {
+  transition: all 0.3s $ease-out-back;
+
+  .confirm-dialog {
+    animation: dialogEnter 0.3s $ease-out-back;
+  }
+}
+
+.dialog-leave-active {
+  transition: all 0.2s ease-in;
+}
+
+.dialog-enter-from {
+  opacity: 0;
+
+  .confirm-dialog {
+    transform: scale(0.9);
+  }
+}
+
+.dialog-leave-to {
+  opacity: 0;
+}
+
+@keyframes dialogEnter {
+  from {
+    opacity: 0;
+    transform: scale(0.9) translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
 }
 </style>

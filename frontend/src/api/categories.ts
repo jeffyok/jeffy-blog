@@ -3,7 +3,7 @@
  * 包含分类的 CRUD 操作
  */
 import api from '.'
-import type { Category, CategoryCreate, CategoryUpdate } from '@/types/api'
+import type { CategoryCreate, CategoryUpdate } from '@/types/api'
 import type { Category as ArticleCategory } from '@/types/article'
 
 /** 获取所有分类列表 */
@@ -18,12 +18,12 @@ export function adminGetCategories() {
 
 /** 创建分类 */
 export function createCategory(data: CategoryCreate) {
-  return api.post<Category>('/admin/categories/', data)
+  return api.post<ArticleCategory>('/admin/categories/', data)
 }
 
 /** 更新分类 */
 export function updateCategory(id: number, data: CategoryUpdate) {
-  return api.put<Category>(`/admin/categories/${id}`, data)
+  return api.put<ArticleCategory>(`/admin/categories/${id}`, data)
 }
 
 /** 删除分类 */

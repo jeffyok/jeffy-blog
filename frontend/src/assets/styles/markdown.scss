@@ -17,7 +17,11 @@
   }
 
   h1 { font-size: 28px; }
-  h2 { font-size: 24px; border-bottom: 1px solid $border-light; padding-bottom: 8px; }
+  h2 {
+    font-size: 24px;
+    border-bottom: 1px solid $border-light;
+    padding-bottom: 8px;
+  }
   h3 { font-size: 20px; }
   h4 { font-size: 18px; }
 
@@ -28,6 +32,7 @@
   // 链接
   a {
     color: $primary;
+    transition: color $transition-fast;
 
     &:hover {
       color: $primary-dark;
@@ -38,35 +43,56 @@
   // 图片（自适应宽度）
   img {
     max-width: 100%;
-    border-radius: 4px;
+    border-radius: $radius-md;
+    margin: 8px 0;
   }
 
-  // 引用块
+  // 引用块 — 渐变左侧条
   blockquote {
     margin: 16px 0;
     padding: 12px 16px;
-    border-left: 4px solid $primary;
-    background: #f9f9f9;
+    border-left: 4px solid;
+    border-image: $gradient-primary 1;
+    background: rgba(64, 158, 255, 0.04);
     color: $text-secondary;
+    border-radius: 0 $radius-sm $radius-sm 0;
   }
 
-  // 行内代码
+  // 行内代码 — 渐变背景
   code {
     padding: 2px 6px;
-    background: #f5f5f5;
-    border-radius: 3px;
+    background: rgba(64, 158, 255, 0.08);
+    border-radius: 4px;
     font-size: 0.9em;
     font-family: 'Menlo', 'Monaco', 'Consolas', monospace;
+    color: #c7254e;
   }
 
-  // 代码块
+  // 代码块 — macOS 三色圆点装饰
   pre {
     margin: 16px 0;
     padding: 16px;
+    padding-top: 40px;
     overflow-x: auto;
-    border-radius: 6px;
-    background: #282c34;         // 深色代码块背景
+    border-radius: $radius-md;
+    background: #282c34;
     color: #abb2bf;
+    position: relative;
+
+    // macOS 三色圆点
+    &::before {
+      content: '';
+      position: absolute;
+      top: 14px;
+      left: 16px;
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      background: #ff5f57;
+      box-shadow:
+        20px 0 0 #febc2e,
+        40px 0 0 #28c840;
+    }
 
     code {
       padding: 0;
@@ -81,16 +107,27 @@
     width: 100%;
     border-collapse: collapse;
     margin: 16px 0;
+    border-radius: $radius-sm;
+    overflow: hidden;
 
     th, td {
       border: 1px solid $border;
-      padding: 8px 12px;
+      padding: 10px 14px;
       text-align: left;
     }
 
     th {
-      background: $bg;
+      background: rgba(64, 158, 255, 0.06);
       font-weight: 600;
+    }
+
+    // 行 hover 高亮
+    tbody tr {
+      transition: background $transition-fast;
+
+      &:hover {
+        background: rgba(64, 158, 255, 0.04);
+      }
     }
   }
 
@@ -107,7 +144,8 @@
   // 分割线
   hr {
     border: none;
-    border-top: 1px solid $border-light;
+    height: 1px;
+    background: $gradient-card-border;
     margin: 24px 0;
   }
 }

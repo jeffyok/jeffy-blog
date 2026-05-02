@@ -1,38 +1,30 @@
 <!-- 管理后台文章列表页：搜索、过滤、编辑、删除文章 -->
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
-import { useRouter } from 'vue-router'
 import { adminGetArticles, deleteArticle } from '@/api/articles'
 import type { ArticleListItem } from '@/types/article'
 import { formatDateTime } from '@/utils/format'
 import ConfirmDialog from '@/components/common/ConfirmDialog.vue'
 import Pagination from '@/components/common/Pagination.vue'
 
-const router = useRouter()
 const articles = ref<ArticleListItem[]>([])
 const total = ref(0)
 const page = ref(1)
 const pageSize = 20
 const loading = ref(true)
-const deleteTarget = ref<number | null>(null)  // 待删除的文章 ID
+const deleteTarget = ref<number | null>(null)
 const search = ref('')
 const statusFilter = ref('')
 
-/** 状态转换：英文转中文 */
 function getStatusText(status: string) {
-  const statusMap: Record<string, string> = {
-    draft: '草稿',
-    published: '已发布'
-  }
+  const statusMap: Record<string, string> = { draft: '草稿', published: '已发布' }
   return statusMap[status] || status
 }
 
-/** 加载文章列表（支持搜索和状态过滤） */
 async function loadArticles() {
   loading.value = true
   try {
     const params: Record<string, unknown> = { page: page.value, page_size: pageSize }
-    // 只有当明确选择了状态时才传递 status 参数，空字符串表示全部状态
     if (statusFilter.value !== '') params.status = statusFilter.value
     if (search.value) params.search = search.value
     const { data } = await adminGetArticles(params as Parameters<typeof adminGetArticles>[0])
@@ -43,7 +35,6 @@ async function loadArticles() {
   }
 }
 
-/** 确认删除文章 */
 async function handleDelete() {
   if (!deleteTarget.value) return
   await deleteArticle(deleteTarget.value)
@@ -51,7 +42,6 @@ async function handleDelete() {
   await loadArticles()
 }
 
-/** 搜索（重置页码为 1） */
 function handleSearch() {
   page.value = 1
   loadArticles()
@@ -62,13 +52,11 @@ onMounted(loadArticles)
 
 <template>
   <div>
-    <!-- 页头：标题 + 新建按钮 -->
     <div class="page-header">
       <h1 class="page-title">文章管理</h1>
       <router-link to="/admin/articles/new" class="btn btn-primary">新建文章</router-link>
     </div>
 
-    <!-- 搜索和状态过滤 -->
     <div class="filters">
       <input v-model="search" placeholder="搜索文章..." @keyup.enter="handleSearch" />
       <select v-model="statusFilter" @change="page = 1; loadArticles()">
@@ -81,39 +69,39 @@ onMounted(loadArticles)
     <div v-if="loading" class="loading"><span>加载中...</span></div>
     <div v-else-if="articles.length === 0" class="empty">未找到文章。</div>
     <template v-else>
-      <!-- 文章数据表格 -->
-      <table class="data-table">
-        <thead>
-          <tr>
-            <th>标题</th>
-            <th>状态</th>
-            <th>分类</th>
-            <th>作者</th>
-            <th>浏览</th>
-            <th>点赞</th>
-            <th>创建时间</th>
-            <th>操作</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr v-for="article in articles" :key="article.id">
-            <td>{{ article.title }}</td>
-            <td><span :class="['status-tag', article.status]">{{ getStatusText(article.status) }}</span></td>
-            <td>{{ article.category?.name || '-' }}</td>
-            <td>{{ article.author?.username || '-' }}</td>
-            <td>{{ article.view_count }}</td>
-            <td>{{ article.like_count }}</td>
-            <td>{{ formatDateTime(article.created_at) }}</td>
-            <td class="actions">
-              <router-link :to="`/admin/articles/${article.id}/edit`" class="btn btn-sm">编辑</router-link>
-              <button class="btn btn-sm btn-danger" @click="deleteTarget = article.id">删除</button>
-            </td>
-          </tr>
-        </tbody>
-      </table>
+      <div class="table-wrapper">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>标题</th>
+              <th>状态</th>
+              <th>分类</th>
+              <th>作者</th>
+              <th>浏览</th>
+              <th>点赞</th>
+              <th>创建时间</th>
+              <th>操作</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-for="article in articles" :key="article.id">
+              <td>{{ article.title }}</td>
+              <td><span :class="['status-tag', article.status]">{{ getStatusText(article.status) }}</span></td>
+              <td>{{ article.category?.name || '-' }}</td>
+              <td>{{ article.author?.username || '-' }}</td>
+              <td>{{ article.view_count }}</td>
+              <td>{{ article.like_count }}</td>
+              <td>{{ formatDateTime(article.created_at) }}</td>
+              <td class="actions">
+                <router-link :to="`/admin/articles/${article.id}/edit`" class="btn btn-sm">编辑</router-link>
+                <button class="btn btn-sm btn-danger" @click="deleteTarget = article.id">删除</button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
     </template>
 
-    <!-- 删除确认对话框 -->
     <ConfirmDialog
       :visible="deleteTarget !== null"
       title="删除文章"
@@ -122,7 +110,6 @@ onMounted(loadArticles)
       @cancel="deleteTarget = null"
     />
 
-    <!-- 分页组件 -->
     <Pagination
       v-if="!loading && articles.length > 0"
       :total="total"
@@ -143,9 +130,7 @@ onMounted(loadArticles)
   margin-bottom: 16px;
 }
 
-.page-title {
-  margin-bottom: 0;
-}
+.page-title { margin-bottom: 0; }
 
 .filters {
   display: flex;
@@ -153,14 +138,17 @@ onMounted(loadArticles)
   margin-bottom: 16px;
 
   input, select {
-    padding: 8px 12px;
+    padding: 8px 14px;
     border: 1px solid $border;
-    border-radius: 4px;
+    border-radius: $radius-sm;
     font-size: 14px;
     outline: none;
+    transition: all $transition-normal;
+    background: $bg-white;
 
     &:focus {
       border-color: $primary;
+      box-shadow: 0 0 0 3px rgba(64, 158, 255, 0.15);
     }
   }
 
@@ -170,13 +158,17 @@ onMounted(loadArticles)
   }
 }
 
+.table-wrapper {
+  border-radius: $radius-lg;
+  overflow: hidden;
+  box-shadow: $shadow-md;
+  border: 1px solid $glass-border;
+}
+
 .data-table {
   width: 100%;
   border-collapse: collapse;
   background: $bg-white;
-  border-radius: 8px;
-  overflow: hidden;
-  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.05);
 
   th, td {
     padding: 12px 16px;
@@ -186,8 +178,18 @@ onMounted(loadArticles)
   }
 
   th {
-    background: $bg;
+    background: $gradient-primary;
+    color: #fff;
     font-weight: 600;
+    font-size: 13px;
+  }
+
+  tbody tr {
+    transition: background $transition-fast;
+
+    &:hover {
+      background: rgba(64, 158, 255, 0.04);
+    }
   }
 
   .actions {
@@ -196,7 +198,6 @@ onMounted(loadArticles)
   }
 }
 
-// 移动端表格紧凑显示
 @media (max-width: 768px) {
   .data-table {
     font-size: 12px;

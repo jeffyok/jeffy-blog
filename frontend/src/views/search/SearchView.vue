@@ -33,7 +33,6 @@ function handleSearch() {
 }
 
 onMounted(search)
-// URL query 变化时重新搜索（如浏览器前进后退）
 watch(() => route.query.q, (q) => {
   searchQuery.value = (q as string) || ''
   search()
@@ -66,20 +65,30 @@ watch(() => route.query.q, (q) => {
 
   input {
     flex: 1;
-    padding: 10px 16px;
+    padding: 12px 20px;
     border: 1px solid $border;
-    border-radius: 4px;
+    border-radius: $radius-lg;
     font-size: 16px;
     outline: none;
+    transition: all $transition-normal;
+    background: $bg-white;
 
     &:focus {
       border-color: $primary;
+      box-shadow: 0 0 0 3px rgba(64, 158, 255, 0.15);
     }
+  }
+
+  .btn {
+    padding: 12px 24px;
+    border-radius: $radius-lg;
+    font-weight: 500;
   }
 }
 
 .result-count {
   color: $text-secondary;
   margin-bottom: 16px;
+  font-size: 14px;
 }
 </style>

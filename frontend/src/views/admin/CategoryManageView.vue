@@ -8,11 +8,10 @@ import ConfirmDialog from '@/components/common/ConfirmDialog.vue'
 const categories = ref<Category[]>([])
 const loading = ref(true)
 const showForm = ref(false)
-const editingId = ref<number | null>(null)  // 正在编辑的分类 ID，null 表示新建
+const editingId = ref<number | null>(null)
 const form = ref({ name: '', slug: '', description: '' })
 const deleteTarget = ref<number | null>(null)
 
-/** 加载分类列表 */
 async function loadCategories() {
   loading.value = true
   try {
@@ -23,21 +22,18 @@ async function loadCategories() {
   }
 }
 
-/** 打开新建表单 */
 function openCreate() {
   editingId.value = null
   form.value = { name: '', slug: '', description: '' }
   showForm.value = true
 }
 
-/** 打开编辑表单，填充已有数据 */
 function openEdit(cat: Category) {
   editingId.value = cat.id
   form.value = { name: cat.name, slug: cat.slug, description: cat.description || '' }
   showForm.value = true
 }
 
-/** 提交表单（新建或更新） */
 async function handleSubmit() {
   if (editingId.value) {
     await updateCategory(editingId.value, form.value)
@@ -48,7 +44,6 @@ async function handleSubmit() {
   await loadCategories()
 }
 
-/** 确认删除分类 */
 async function handleDelete() {
   if (!deleteTarget.value) return
   await deleteCategory(deleteTarget.value)
@@ -88,32 +83,34 @@ onMounted(loadCategories)
     </div>
 
     <div v-if="loading" class="loading"><span>加载中...</span></div>
-    <!-- 分类数据表格 -->
-    <table v-else class="data-table">
-      <thead>
-        <tr>
-          <th>名称</th>
-          <th>别名</th>
-          <th>描述</th>
-          <th>创建时间</th>
-          <th>操作</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr v-for="cat in categories" :key="cat.id">
-          <td>{{ cat.name }}</td>
-          <td>{{ cat.slug }}</td>
-          <td>{{ cat.description || '-' }}</td>
-          <td>{{ new Date(cat.created_at).toLocaleString('zh-CN') }}</td>
-          <td class="actions">
-            <button class="btn btn-sm" @click="openEdit(cat)">编辑</button>
-            <button class="btn btn-sm btn-danger" @click="deleteTarget = cat.id">删除</button>
-          </td>
-        </tr>
-      </tbody>
-    </table>
+    <template v-else>
+      <div class="table-wrapper">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>名称</th>
+              <th>别名</th>
+              <th>描述</th>
+              <th>创建时间</th>
+              <th>操作</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-for="cat in categories" :key="cat.id">
+              <td>{{ cat.name }}</td>
+              <td>{{ cat.slug }}</td>
+              <td>{{ cat.description || '-' }}</td>
+              <td>{{ new Date(cat.created_at).toLocaleString('zh-CN') }}</td>
+              <td class="actions">
+                <button class="btn btn-sm" @click="openEdit(cat)">编辑</button>
+                <button class="btn btn-sm btn-danger" @click="deleteTarget = cat.id">删除</button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </template>
 
-    <!-- 删除确认对话框 -->
     <ConfirmDialog
       :visible="deleteTarget !== null"
       title="删除分类"
@@ -138,9 +135,22 @@ onMounted(loadCategories)
 
 .form-card {
   margin-bottom: 16px;
-  padding: 20px;
+  padding: 24px;
+  position: relative;
+  overflow: hidden;
 
-  h3 { margin-bottom: 16px; }
+  // 顶部渐变装饰条
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: $gradient-primary;
+  }
+
+  h3 { margin-bottom: 16px; font-weight: 600; }
 }
 
 .form-actions {
@@ -149,13 +159,17 @@ onMounted(loadCategories)
   gap: 8px;
 }
 
+.table-wrapper {
+  border-radius: $radius-lg;
+  overflow: hidden;
+  box-shadow: $shadow-md;
+  border: 1px solid $glass-border;
+}
+
 .data-table {
   width: 100%;
   border-collapse: collapse;
   background: $bg-white;
-  border-radius: 8px;
-  overflow: hidden;
-  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.05);
 
   th, td {
     padding: 12px 16px;
@@ -164,7 +178,21 @@ onMounted(loadCategories)
     font-size: 14px;
   }
 
-  th { background: $bg; font-weight: 600; }
+  th {
+    background: $gradient-primary;
+    color: #fff;
+    font-weight: 600;
+    font-size: 13px;
+  }
+
+  tbody tr {
+    transition: background $transition-fast;
+
+    &:hover {
+      background: rgba(64, 158, 255, 0.04);
+    }
+  }
+
   .actions { display: flex; gap: 4px; }
 }
 </style>

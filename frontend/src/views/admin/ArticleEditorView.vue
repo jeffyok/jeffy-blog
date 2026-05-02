@@ -7,17 +7,15 @@ import 'md-editor-v3/lib/style.css'
 import { getArticleById, createArticle, updateArticle } from '@/api/articles'
 import { getCategories } from '@/api/categories'
 import { getTags } from '@/api/tags'
-import type { Article, Category, Tag } from '@/types/article'
+import type { Category, Tag } from '@/types/article'
 
 const route = useRoute()
 const router = useRouter()
-// 根据 URL 是否包含 id 判断是新建还是编辑
 const isEdit = computed(() => !!route.params.id)
 const loading = ref(true)
 const saving = ref(false)
 const saveError = ref('')
 
-// 文章表单数据
 const form = ref({
   title: '',
   slug: '',
@@ -36,7 +34,6 @@ const tags = ref<Tag[]>([])
 let autoSaveTimer: ReturnType<typeof setTimeout> | null = null
 
 onMounted(async () => {
-  // 并行加载分类、标签，编辑模式下还需加载文章数据
   await Promise.all([loadCategories(), loadTags()])
   if (isEdit.value) {
     await loadArticle()
@@ -45,11 +42,9 @@ onMounted(async () => {
 })
 
 onBeforeUnmount(() => {
-  // 清理自动保存定时器
   if (autoSaveTimer) clearTimeout(autoSaveTimer)
 })
 
-/** 加载分类列表 */
 async function loadCategories() {
   try {
     const { data } = await getCategories()
@@ -57,7 +52,6 @@ async function loadCategories() {
   } catch { /* ignore */ }
 }
 
-/** 加载标签列表 */
 async function loadTags() {
   try {
     const { data } = await getTags()
@@ -65,7 +59,6 @@ async function loadTags() {
   } catch { /* ignore */ }
 }
 
-/** 编辑模式下加载已有文章数据 */
 async function loadArticle() {
   const { data } = await getArticleById(Number(route.params.id))
   form.value = {
@@ -81,17 +74,15 @@ async function loadArticle() {
   }
 }
 
-/** 根据标题自动生成 slug */
 function generateSlug() {
   const title = form.value.title
   form.value.slug = title
     .toLowerCase()
-    .replace(/[^\w\s-]/g, '')     // 移除特殊字符
-    .replace(/[-\s]+/g, '-')      // 空格和连字符转为连字符
+    .replace(/[^\w\s-]/g, '')
+    .replace(/[-\s]+/g, '-')
     .trim()
 }
 
-/** 保存文章（可指定状态：draft 或 published） */
 async function save(status?: string) {
   saveError.value = ''
   saving.value = true
@@ -105,7 +96,7 @@ async function save(status?: string) {
     } else {
       await createArticle(payload)
     }
-    router.push('/admin/articles') // 保存成功跳转文章列表
+    router.push('/admin/articles')
   } catch (e) {
     saveError.value = '保存文章失败'
   } finally {
@@ -113,7 +104,6 @@ async function save(status?: string) {
   }
 }
 
-/** 切换标签选中状态 */
 function toggleTag(tagId: number) {
   const idx = form.value.tag_ids.indexOf(tagId)
   if (idx >= 0) {
@@ -126,7 +116,6 @@ function toggleTag(tagId: number) {
 
 <template>
   <div>
-    <!-- 页头：标题 + 保存/发布按钮 -->
     <div class="page-header">
       <h1 class="page-title">{{ isEdit ? '编辑文章' : '新建文章' }}</h1>
       <div class="header-actions">
@@ -137,7 +126,6 @@ function toggleTag(tagId: number) {
       </div>
     </div>
 
-    <!-- 保存失败错误提示 -->
     <div v-if="saveError" class="save-error">{{ saveError }}</div>
 
     <div v-if="loading" class="loading"><span>加载中...</span></div>
@@ -169,7 +157,7 @@ function toggleTag(tagId: number) {
             </select>
           </div>
           <div class="sidebar-section">
-            <label>
+            <label class="checkbox-label">
               <input type="checkbox" v-model="form.is_top" />
               置顶
             </label>
@@ -184,7 +172,7 @@ function toggleTag(tagId: number) {
           <div class="sidebar-section">
             <h3>标签</h3>
             <div class="tag-selector">
-              <label v-for="tag in tags" :key="tag.id" class="tag-option">
+              <label v-for="tag in tags" :key="tag.id" class="tag-option" :class="{ selected: form.tag_ids.includes(tag.id) }">
                 <input type="checkbox" :value="tag.id" :checked="form.tag_ids.includes(tag.id)" @change="toggleTag(tag.id)" />
                 {{ tag.name }}
               </label>
@@ -214,9 +202,7 @@ function toggleTag(tagId: number) {
   margin-bottom: 16px;
 }
 
-.page-title {
-  margin-bottom: 0;
-}
+.page-title { margin-bottom: 0; }
 
 .header-actions {
   display: flex;
@@ -224,11 +210,12 @@ function toggleTag(tagId: number) {
 }
 
 .save-error {
-  background: #fef0f0;
+  background: rgba(245, 108, 108, 0.08);
   color: $danger;
-  padding: 8px 12px;
-  border-radius: 4px;
+  padding: 10px 14px;
+  border-radius: $radius-sm;
   margin-bottom: 16px;
+  border-left: 3px solid $danger;
 }
 
 .editor-wrapper {
@@ -251,9 +238,13 @@ function toggleTag(tagId: number) {
   font-weight: 600;
   outline: none;
   margin-bottom: 8px;
+  transition: border-color $transition-normal;
+  background: transparent;
 
   &:focus {
     border-bottom-color: $primary;
+    border-image: $gradient-primary;
+    border-image-slice: 1;
   }
 }
 
@@ -269,12 +260,14 @@ function toggleTag(tagId: number) {
     flex: 1;
     padding: 6px 12px;
     border: 1px solid $border;
-    border-radius: 4px;
+    border-radius: $radius-sm;
     font-size: 14px;
     outline: none;
+    transition: all $transition-normal;
 
     &:focus {
       border-color: $primary;
+      box-shadow: 0 0 0 3px rgba(64, 158, 255, 0.15);
     }
   }
 }
@@ -283,8 +276,20 @@ function toggleTag(tagId: number) {
   width: 300px;
   flex-shrink: 0;
   height: fit-content;
-  position: sticky;              // 滚动时固定在顶部
+  position: sticky;
   top: 84px;
+  overflow: hidden;
+
+  // 顶部渐变装饰条
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: $gradient-primary;
+  }
 }
 
 .sidebar-section {
@@ -301,12 +306,14 @@ function toggleTag(tagId: number) {
     width: 100%;
     padding: 8px 12px;
     border: 1px solid $border;
-    border-radius: 4px;
+    border-radius: $radius-sm;
     font-size: 14px;
     outline: none;
+    transition: all $transition-normal;
 
     &:focus {
       border-color: $primary;
+      box-shadow: 0 0 0 3px rgba(64, 158, 255, 0.15);
     }
   }
 
@@ -319,38 +326,47 @@ function toggleTag(tagId: number) {
     width: auto;
     margin: 0;
   }
+}
 
-  label {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    font-size: 14px;
-    cursor: pointer;
-  }
+.checkbox-label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  cursor: pointer;
 }
 
 .tag-selector {
   display: flex;
   flex-wrap: wrap;
-  gap: 8px;
+  gap: 6px;
 }
 
 .tag-option {
   display: flex;
   align-items: center;
   gap: 4px;
-  padding: 4px 8px;
+  padding: 4px 10px;
   background: $bg;
-  border-radius: 4px;
+  border-radius: $radius-xl;
   font-size: 13px;
   cursor: pointer;
+  transition: all $transition-fast;
+  border: 1px solid transparent;
 
-  input {
-    width: auto;
+  input { width: auto; }
+
+  &.selected {
+    background: rgba(64, 158, 255, 0.1);
+    color: $primary;
+    border-color: rgba(64, 158, 255, 0.3);
+  }
+
+  &:hover {
+    background: rgba(64, 158, 255, 0.06);
   }
 }
 
-// 中等屏幕以下改为纵向布局
 @media (max-width: 1024px) {
   .editor-wrapper {
     flex-direction: column;

@@ -9,7 +9,11 @@ import AppFooter from '@/components/common/AppFooter.vue'
     <AppHeader />
     <main class="main-content">
       <div class="container">
-        <router-view />
+        <router-view v-slot="{ Component }">
+          <Transition name="page-fade" mode="out-in">
+            <component :is="Component" />
+          </Transition>
+        </router-view>
       </div>
     </main>
     <AppFooter />
@@ -20,13 +24,13 @@ import AppFooter from '@/components/common/AppFooter.vue'
 @use '@/assets/styles/variables' as *;
 
 .default-layout {
-  min-height: 100vh;         // 最小高度撑满视口
+  min-height: 100vh;
   display: flex;
-  flex-direction: column;    // flex 纵向布局，让 footer 贴底
+  flex-direction: column;
 }
 
 .main-content {
-  flex: 1;                   // 自动填充剩余空间
+  flex: 1;
   padding: 24px 0;
 }
 </style>

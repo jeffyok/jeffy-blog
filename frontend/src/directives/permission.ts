@@ -8,7 +8,7 @@
  */
 import type { Directive, DirectiveBinding } from 'vue'
 
-function checkPermission(el: HTMLElement, binding: DirectiveBinding<string | string[]>, authStore: any): boolean {
+function checkPermission(_el: HTMLElement, binding: DirectiveBinding<string | string[]>, authStore: any): boolean {
   const store = authStore()
   const value = binding.value
   if (typeof value === 'string') {

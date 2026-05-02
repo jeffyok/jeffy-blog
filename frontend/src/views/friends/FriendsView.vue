@@ -42,30 +42,55 @@ onMounted(async () => {
 
 .friends-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); // 自适应列数
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
   gap: 16px;
 }
 
 .friend-card {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 14px;
   text-decoration: none;
   color: $text;
-  transition: box-shadow 0.2s, transform 0.2s;
+  position: relative;
+  overflow: hidden;
+
+  // 渐变边框效果
+  &::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: $radius-lg;
+    padding: 1px;
+    background: $gradient-card-border;
+    -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+    opacity: 0;
+    transition: opacity $transition-normal;
+  }
 
   &:hover {
-    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
-    transform: translateY(-2px);
+    transform: translateY(-3px);
+    box-shadow: $shadow-lg;
+
+    &::after {
+      opacity: 1;
+    }
+
+    .friend-logo {
+      box-shadow: 0 0 0 3px rgba(64, 158, 255, 0.2);
+    }
   }
 }
 
 .friend-logo {
   width: 48px;
   height: 48px;
-  border-radius: 8px;
+  border-radius: 50%;
   overflow: hidden;
   flex-shrink: 0;
+  transition: box-shadow $transition-normal;
 
   img {
     width: 100%;
@@ -75,13 +100,18 @@ onMounted(async () => {
 }
 
 .friend-info {
-  min-width: 0;                  // 允许文本溢出省略
+  min-width: 0;
 }
 
 .friend-title {
   font-size: 16px;
   font-weight: 600;
   margin-bottom: 4px;
+  transition: color $transition-fast;
+
+  .friend-card:hover & {
+    color: $primary;
+  }
 }
 
 .friend-desc {

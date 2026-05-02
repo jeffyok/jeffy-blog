@@ -69,21 +69,25 @@ function goTo(page: number) {
   height: 36px;
   padding: 0 8px;
   border: 1px solid $border;
-  background: $bg-white;
-  border-radius: 4px;
+  background: $glass-bg;
+  backdrop-filter: blur(8px);
+  border-radius: 10px;
   font-size: 14px;
   cursor: pointer;
-  transition: all 0.2s;
+  transition: all $transition-normal;
 
   &:hover:not(.disabled):not(.active) {
     border-color: $primary;
     color: $primary;
+    transform: scale(1.05);
+    box-shadow: $shadow-sm;
   }
 
   &.active {
-    background: $primary;
+    background: $gradient-primary;
     color: white;
-    border-color: $primary;
+    border-color: transparent;
+    box-shadow: 0 4px 12px rgba(64, 158, 255, 0.4);
   }
 
   &.disabled {

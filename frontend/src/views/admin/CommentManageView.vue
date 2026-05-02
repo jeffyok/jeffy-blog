@@ -15,17 +15,11 @@ const loading = ref(true)
 const statusFilter = ref('')
 const deleteTarget = ref<number | null>(null)
 
-/** 状态转换：英文转中文 */
 function getStatusText(status: string) {
-  const statusMap: Record<string, string> = {
-    pending: '待审核',
-    approved: '已通过',
-    rejected: '已拒绝'
-  }
+  const statusMap: Record<string, string> = { pending: '待审核', approved: '已通过', rejected: '已拒绝' }
   return statusMap[status] || status
 }
 
-/** 加载评论列表（支持状态过滤） */
 async function loadComments() {
   loading.value = true
   try {
@@ -39,19 +33,16 @@ async function loadComments() {
   }
 }
 
-/** 通过评论 */
 async function approve(commentId: number) {
   await updateCommentStatus(commentId, 'approved')
   await loadComments()
 }
 
-/** 拒绝评论 */
 async function reject(commentId: number) {
   await updateCommentStatus(commentId, 'rejected')
   await loadComments()
 }
 
-/** 确认删除评论 */
 async function handleDelete() {
   if (!deleteTarget.value) return
   await deleteComment(deleteTarget.value)
@@ -66,7 +57,6 @@ onMounted(loadComments)
   <div>
     <h1 class="page-title">评论管理</h1>
 
-    <!-- 状态过滤 -->
     <div class="filters">
       <select v-model="statusFilter" @change="page = 1; loadComments()">
         <option value="">全部状态</option>
@@ -78,35 +68,35 @@ onMounted(loadComments)
 
     <div v-if="loading" class="loading"><span>加载中...</span></div>
     <div v-else-if="comments.length === 0" class="empty">未找到评论。</div>
-    <!-- 评论数据表格 -->
-    <table v-else class="data-table">
-      <thead>
-        <tr>
-          <th>内容</th>
-          <th>作者</th>
-          <th>状态</th>
-          <th>时间</th>
-          <th>操作</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr v-for="comment in comments" :key="comment.id">
-          <td class="content-cell">{{ comment.content }}</td>
-          <td>{{ comment.user?.username || comment.nickname || '游客' }}</td>
-          <td><span :class="['status-tag', comment.status]">{{ getStatusText(comment.status) }}</span></td>
-          <td>{{ formatDateTime(comment.created_at) }}</td>
-          <td class="actions">
-            <!-- 非已通过状态才显示"通过"按钮 -->
-            <button v-if="comment.status !== 'approved'" class="btn btn-sm" @click="approve(comment.id)">通过</button>
-            <!-- 非已拒绝状态才显示"拒绝"按钮 -->
-            <button v-if="comment.status !== 'rejected'" class="btn btn-sm" @click="reject(comment.id)">拒绝</button>
-            <button class="btn btn-sm btn-danger" @click="deleteTarget = comment.id">删除</button>
-          </td>
-        </tr>
-      </tbody>
-    </table>
+    <template v-else>
+      <div class="table-wrapper">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>内容</th>
+              <th>作者</th>
+              <th>状态</th>
+              <th>时间</th>
+              <th>操作</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-for="comment in comments" :key="comment.id">
+              <td class="content-cell">{{ comment.content }}</td>
+              <td>{{ comment.user?.username || comment.nickname || '游客' }}</td>
+              <td><span :class="['status-tag', comment.status]">{{ getStatusText(comment.status) }}</span></td>
+              <td>{{ formatDateTime(comment.created_at) }}</td>
+              <td class="actions">
+                <button v-if="comment.status !== 'approved'" class="btn btn-sm" @click="approve(comment.id)">通过</button>
+                <button v-if="comment.status !== 'rejected'" class="btn btn-sm" @click="reject(comment.id)">拒绝</button>
+                <button class="btn btn-sm btn-danger" @click="deleteTarget = comment.id">删除</button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </template>
 
-    <!-- 删除确认对话框 -->
     <ConfirmDialog
       :visible="deleteTarget !== null"
       title="删除评论"
@@ -115,7 +105,6 @@ onMounted(loadComments)
       @cancel="deleteTarget = null"
     />
 
-    <!-- 分页组件 -->
     <Pagination
       v-if="!loading && comments.length > 0"
       :total="total"
@@ -133,21 +122,32 @@ onMounted(loadComments)
   margin-bottom: 16px;
 
   select {
-    padding: 8px 12px;
+    padding: 8px 14px;
     border: 1px solid $border;
-    border-radius: 4px;
+    border-radius: $radius-sm;
     font-size: 14px;
     outline: none;
+    background: $bg-white;
+    transition: all $transition-normal;
+
+    &:focus {
+      border-color: $primary;
+      box-shadow: 0 0 0 3px rgba(64, 158, 255, 0.15);
+    }
   }
+}
+
+.table-wrapper {
+  border-radius: $radius-lg;
+  overflow: hidden;
+  box-shadow: $shadow-md;
+  border: 1px solid $glass-border;
 }
 
 .data-table {
   width: 100%;
   border-collapse: collapse;
   background: $bg-white;
-  border-radius: 8px;
-  overflow: hidden;
-  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.05);
 
   th, td {
     padding: 12px 16px;
@@ -156,12 +156,27 @@ onMounted(loadComments)
     font-size: 14px;
   }
 
-  th { background: $bg; font-weight: 600; }
+  th {
+    background: $gradient-primary;
+    color: #fff;
+    font-weight: 600;
+    font-size: 13px;
+  }
+
+  tbody tr {
+    transition: background $transition-fast;
+
+    &:hover {
+      background: rgba(64, 158, 255, 0.04);
+    }
+  }
+
   .actions { display: flex; gap: 4px; white-space: nowrap; }
+
   .content-cell {
     max-width: 300px;
     overflow: hidden;
-    text-overflow: ellipsis;     // 长评论内容截断省略
+    text-overflow: ellipsis;
     white-space: nowrap;
   }
 }

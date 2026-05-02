@@ -4,7 +4,7 @@
  */
 import { ref } from 'vue'
 import { defineStore } from 'pinia'
-import type { ArticleListItem, ArticlePagination } from '@/types/article'
+import type { ArticleListItem } from '@/types/article'
 import * as articlesApi from '@/api/articles'
 
 export const useArticlesStore = defineStore('articles', () => {

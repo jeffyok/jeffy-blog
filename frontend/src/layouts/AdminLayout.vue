@@ -1,6 +1,6 @@
 <!-- 管理后台布局：顶部栏 + 侧边导航 + 内容区 -->
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
 
@@ -43,12 +43,16 @@ function logout() {
   <div class="admin-layout">
     <!-- 顶部栏 -->
     <header class="admin-header">
-      <button class="menu-toggle" @click="toggleSidebar">☰</button>
+      <button class="menu-toggle" @click="toggleSidebar">
+        <span></span>
+        <span></span>
+        <span></span>
+      </button>
       <h1 class="admin-title">Jeffy Blog Admin</h1>
       <div class="header-right">
         <span class="username">{{ authStore.user?.username }}</span>
-        <button class="btn btn-sm" @click="logout">退出登录</button>
-        <router-link to="/" class="btn btn-sm">查看博客</router-link>
+        <button class="btn btn-sm header-btn" @click="logout">退出登录</button>
+        <router-link to="/" class="btn btn-sm header-btn">查看博客</router-link>
       </div>
     </header>
 
@@ -72,12 +76,18 @@ function logout() {
 
       <!-- 主内容区 -->
       <main class="admin-content">
-        <router-view />
+        <router-view v-slot="{ Component }">
+          <Transition name="page-fade" mode="out-in">
+            <component :is="Component" />
+          </Transition>
+        </router-view>
       </main>
     </div>
 
     <!-- 移动端侧边栏遮罩 -->
-    <div v-if="sidebarOpen" class="overlay" @click="sidebarOpen = false" />
+    <Transition name="fade">
+      <div v-if="sidebarOpen" class="overlay" @click="sidebarOpen = false" />
+    </Transition>
   </div>
 </template>
 
@@ -90,7 +100,8 @@ function logout() {
 
 .admin-header {
   height: $header-height;
-  background: #304156;
+  background: linear-gradient(135deg, #1a2332 0%, #2d3a4a 100%);
+  backdrop-filter: blur(12px);
   color: #fff;
   display: flex;
   align-items: center;
@@ -100,53 +111,77 @@ function logout() {
   left: 0;
   right: 0;
   z-index: 100;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.15);
 }
 
 .menu-toggle {
-  display: none;               // 桌面端隐藏，移动端显示
+  display: none;
   background: none;
   border: none;
-  color: #fff;
-  font-size: 20px;
+  width: 28px;
+  height: 20px;
+  position: relative;
   cursor: pointer;
   margin-right: 16px;
+
+  span {
+    display: block;
+    position: absolute;
+    width: 100%;
+    height: 2px;
+    background: #fff;
+    border-radius: 2px;
+    transition: all 0.3s ease;
+
+    &:nth-child(1) { top: 0; }
+    &:nth-child(2) { top: 9px; }
+    &:nth-child(3) { top: 18px; }
+  }
 }
 
 .admin-title {
   font-size: 18px;
   font-weight: 600;
+  background: linear-gradient(135deg, #66b1ff, #a78bfa);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
 }
 
 .header-right {
-  margin-left: auto;           // 推到右侧
+  margin-left: auto;
   display: flex;
   align-items: center;
   gap: 12px;
 
   .username {
     font-size: 14px;
+    color: rgba(255, 255, 255, 0.8);
   }
 
-  .btn {
+  .header-btn {
     color: #fff;
-    background: rgba(255, 255, 255, 0.1);
-    border-color: rgba(255, 255, 255, 0.3);
+    background: rgba(255, 255, 255, 0.08);
+    border-color: rgba(255, 255, 255, 0.2);
+    backdrop-filter: blur(8px);
 
     &:hover {
-      background: rgba(255, 255, 255, 0.2);
-      border-color: #fff;
+      background: rgba(255, 255, 255, 0.15);
+      border-color: rgba(255, 255, 255, 0.4);
     }
   }
 }
 
 .admin-body {
   display: flex;
-  padding-top: $header-height; // 为固定顶栏留出空间
+  padding-top: $header-height;
 }
 
 .sidebar {
   width: $sidebar-width;
-  background: #fff;
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
   border-right: 1px solid $border-light;
   height: calc(100vh - #{$header-height});
   position: fixed;
@@ -157,7 +192,7 @@ function logout() {
 }
 
 .sidebar-nav {
-  padding: 12px 0;
+  padding: 16px 0;
 }
 
 .nav-item {
@@ -166,17 +201,33 @@ function logout() {
   padding: 12px 20px;
   color: $text;
   text-decoration: none;
-  transition: all 0.2s;
+  transition: all $transition-normal;
+  position: relative;
+  margin: 2px 8px;
+  border-radius: $radius-sm;
 
   &:hover {
-    background: $bg;
+    background: rgba(64, 158, 255, 0.06);
     color: $primary;
   }
 
   &.active {
-    background: #ecf5ff;
+    background: rgba(64, 158, 255, 0.1);
     color: $primary;
-    border-right: 3px solid $primary;  // 选中态右侧指示条
+    font-weight: 500;
+
+    // 左侧渐变条
+    &::before {
+      content: '';
+      position: absolute;
+      left: -8px;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 3px;
+      height: 60%;
+      border-radius: 2px;
+      background: $gradient-primary;
+    }
   }
 
   .nav-icon {
@@ -186,10 +237,11 @@ function logout() {
 }
 
 .admin-content {
-  margin-left: $sidebar-width; // 为固定侧边栏留出空间
+  margin-left: $sidebar-width;
   flex: 1;
   padding: 24px;
   min-height: calc(100vh - #{$header-height});
+  background: $bg;
 }
 
 .overlay {
@@ -199,28 +251,34 @@ function logout() {
 // 移动端适配
 @media (max-width: 768px) {
   .menu-toggle {
-    display: block;            // 显示汉堡菜单按钮
+    display: block;
   }
 
   .sidebar {
-    transform: translateX(-100%); // 默认隐藏在左侧
-    transition: transform 0.3s;
+    transform: translateX(-100%);
+    transition: transform 0.3s $ease-smooth;
 
     &.open {
-      transform: translateX(0);   // 展开时滑入
+      transform: translateX(0);
     }
   }
 
   .admin-content {
-    margin-left: 0;            // 移动端去掉侧边栏占位
+    margin-left: 0;
   }
 
   .overlay {
     display: block;
     position: fixed;
     inset: 0;
-    background: rgba(0, 0, 0, 0.3);
+    background: rgba(0, 0, 0, 0.4);
+    backdrop-filter: blur(4px);
     z-index: 98;
   }
 }
+
+// 遮罩层过渡
+.fade-enter-active { transition: opacity 0.2s ease; }
+.fade-leave-active { transition: opacity 0.15s ease; }
+.fade-enter-from, .fade-leave-to { opacity: 0; }
 </style>
